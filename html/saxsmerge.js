@@ -1,8 +1,7 @@
-function add_structure() {
+function add_profile() {
   var row = '<tr>' +
-            '<td>PDB code <input type="text" name="pdbcode"  size="4" /></td>' +
-            '<td>or upload PDB file <input type="file" ' +
+            '<td> upload SAXS profile <input type="file" ' +
                      'name="uploaded_file"  /></td>' +
             '</tr>'
-  $(row).appendTo("#structures");
+  $(row).appendTo("#profiles");
 }

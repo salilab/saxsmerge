@@ -2,6 +2,19 @@ package saxsmerge;
 use base qw(saliweb::frontend);
 use strict;
 
+# Add our own JavaScript and CSS to the page header
+sub get_start_html_parameters {
+  my ($self, $style) = @_;
+  my %param = $self->SUPER::get_start_html_parameters($style);
+  push @{$param{-script}}, {-language => 'JavaScript',
+                            -src => 'html/jquery-1.8.1.min.js' };
+  push @{$param{-script}}, {-language => 'JavaScript',
+                            -src => 'html/saxsmerge.js' };
+  #push @{$param{-style}->{'-src'}}, 'html/saxsmerge.css';
+  return %param;
+}
+
+
 
 sub _display_content {
   my ($self, $content) = @_;
@@ -117,12 +130,12 @@ sub get_input_form {
              $q->table({-id=>'profiles'},
                       $q->td("upload SAXS profile " .
                       $q->filefield({-name=>'uploaded_file'}))) .
-              $q->p($q->button(-value=>'Add more profiles',
-                               -onClick=>"add_structure()")) .
-              $q->p("<center>" .
-                    $q->input({-type=>"submit", -value=>"Submit"}) .
-                    "</center>");
-   return $q->h2({-align=>"center"}, "SAXS Merge ...") .
+             $q->table($q->Tr($q->td($q->button(-value=>'Add more profiles',
+                                       -onClick=>"add_profile()"))) .
+                       $q->Tr($q->td($q->input({-type=>"submit", -value=>"Submit"})),
+                              $q->td($q->input({-type=>"reset", -value=>"Clear"}))));
+
+  return #$q->h2({-align=>"center"}, "SAXS Merge ...") .
   $q->start_form({-name=>"saxsmerge_form", -method=>"post",
                   -action=>$self->submit_url}) .
   $form .
