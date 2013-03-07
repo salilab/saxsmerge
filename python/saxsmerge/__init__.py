@@ -21,7 +21,7 @@ class Job(saliweb.backend.Job):
 date
 hostname
 
-IMPPY="/netapp/sali/saxsmerge/imp/cmake-fast/tools/setup_evironment.sh"
+IMPPY="/netapp/sali/saxsmerge/imp/cmake-fast/setup_evironment.sh"
 SMERGE="/netapp/sali/saxsmerge/imp/src/applications/saxs_merge/saxs_merge.py"
 
 #. /netapp/sali/yannick/.bashrc
