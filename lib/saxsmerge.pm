@@ -67,6 +67,7 @@ sub get_navigation_lab {
       &bull;&nbsp; <a href=\"http://modbase.compbio.ucsf.edu/saxsmerge/help.cgi?type=FAQ\">FAQ</a>&nbsp;
       &bull;&nbsp; <a href=\"http://modbase.compbio.ucsf.edu/saxsmerge/help.cgi?type=download\">Download</a>&nbsp;
       &bull;&nbsp; <a href=\"http://salilab.org/foxs\">FoXS</a>&nbsp;
+      &bull;&nbsp; <a href=\"http://www.pasteur.fr\">Institut Pasteur</a>&nbsp;
       &bull;&nbsp; <a href=\"http://salilab.org\">Sali Lab</a>&nbsp;
       &bull;&nbsp; <a href=\"http://salilab.org/imp\">IMP</a>&nbsp;
       &bull;&nbsp; <a href=\"http://modbase.compbio.ucsf.edu/saxsmerge/help.cgi?type=links\">Links</a>&nbsp;</div>\n";
@@ -94,7 +95,7 @@ sub get_header {
   <table> <tbody> <tr> <td halign='left'>
   <table><tr><td><img src=\"http://salilab.org/saxsmerge/logo.png\" align = 'right' height = '80'></td></tr>
          <tr><td><h3>SAXS Merge</h3> </td></tr></table>
-      </td> <td halign='right'><img src=\"http://salilab.org/foxsdock/logo2.gif\" height = '80'></td></tr>
+      </td> <td halign='right'><img src=\"http://salilab.org/saxsmerge/logo2.gif\" height = '80'></td></tr>
   </tbody>
   </table></div>\n";
 }
@@ -102,7 +103,7 @@ sub get_header {
 
 sub get_footer {
   return "<hr size='2' width=\"80%\"><div id='address'>
-<p> <p>Contact: <script>escramble(\"yannick\",\"salilab.org\")</script><br></div>\n";
+<p> <p>Contact: <script>escramble(\"yannick.spill\",\"pasteur.fr\")</script><br></div>\n";
 }
 
 sub make_dropdown {
@@ -116,6 +117,12 @@ sub make_dropdown {
            "href=\"#\">$title</a>\n" .
            "<div class=\"dropdown\" id=\"${id}\"$style>\n" .
            $text . "\n</div></div>\n";
+}
+sub check_required_email {
+    my ($email) = @_;
+    if($email !~ m/^[\w\.-]+@[\w-]+\.[\w-]+((\.[\w-]+)*)?$/ ) {
+	throw saliweb::frontend::InputValidationError("Please provide a valid return email address");
+    }
 }
 
 
@@ -153,7 +160,62 @@ sub get_index_page {
 }
 
 sub get_submit_page {
-    # TODO
+    my $self = shift;
+    my $q = $self->cgi;
+
+    my $email = $q->param('jobemail');
+
+    check_required_email($email);
+
+  #create job directory time_stamp
+    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime;
+    my $time_stamp = $sec."_".$min."_".$hour."_".$mday."_".$mon."_".$year;
+    my $job = $self->make_job($time_stamp, $self->email);
+    my $jobdir = $job->directory;
+
+    my $data_file_name = $jobdir . "/input.txt";
+    open(DATAFILE, "> $data_file_name")
+      or throw saliweb::frontend::InternalError("Cannot open $data_file_name: $!");
+
+
+    my @uplfiles = $q->upload("uploaded_file");
+    my $upl_num = 0;
+    foreach my $upl (@uplfiles) {      
+	if (defined $upl) {
+	    if(length $upl > 40) { 
+		throw saliweb::frontend::InputValidationError("Please limit the file name length to a maximum of 40 characters");
+	    }
+        my $buffer;
+        my $fullpath = $job->directory . "/" . $upl;
+        open(OUTFILE, '>', $fullpath)
+	    or throw saliweb::frontend::InternalError("Cannot open $fullpath: $!");
+        while (<$upl>) {
+	    print OUTFILE $_;
+        }
+        close OUTFILE;
+	print DATAFILE "$upl\n";
+        #system("echo $upl >>$list");
+
+        $upl_num++;
+	}
+    }
+    
+    print $upl_num;
+
+    
+
+    close(DATAFILE);
+
+    $job->submit($email);
+
+    my $line = $job->results_url . " " . $email;
+    #`echo $line >> ../submit.log`;
+
+    # Inform the user of the job name and results URL
+    return $q->p("Your job has been submitted with job ID " . $job->name) .
+    #$q->p("Results will be found at <a href=\"" . $job->results_url . "\">this link</a>.");
+	$q->p("You will receive an e-mail with results link once the job has finished");
+
 }
 
 sub get_results_page {
