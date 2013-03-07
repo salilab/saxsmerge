@@ -231,8 +231,15 @@ sub get_results_page {
 
   if(-f 'summary.txt') {
     #$return .= print_input_data($job);
-    $return .= $q->p("<a href=\"" . $job->get_results_file_url('summary.txt')
-	 . "\">Download output file</a>.");
+    $return .= $q->p("<a href=\"" .
+		$job->get_results_file_url('data_merged.dat')
+	 . "\">Merged data</a>.");
+    $return .= $q->p("<a href=\"" .
+	        $job->get_results_file_url('mean_merged.dat')
+	 . "\">Merged mean</a>.");
+    $return .= $q->p("<a href=\"" .
+	        $job->get_results_file_url('summary.txt')
+	 . "\">Summary file</a>.");
   } else {
     $return .= $q->p("No output file was produced. Please inspect the log file 
 to determine the problem.");
