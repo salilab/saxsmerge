@@ -33,9 +33,9 @@ $IMPPY $SMERGE %s
 
 date
 """ % args
-    r = self.runnercls(script)
-    r.set_sge_options('-l arch=linux-x64')
-    return r
+        r = self.runnercls(script)
+        r.set_sge_options('-l arch=linux-x64')
+        return r
 
 def get_web_service(config_file):
     db = saliweb.backend.Database(Job)
