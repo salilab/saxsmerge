@@ -219,7 +219,29 @@ sub get_submit_page {
 }
 
 sub get_results_page {
-    # TODO
+  my ($self, $job) = @_;
+  my $q = $self->cgi;
+
+  my $return = '';
+  my $jobname = $job->name;
+  my $joburl = $job->results_url;
+  my $passwd = $q->param('passwd');  my $from = $q->param('from');
+  my $to = $q->param('to');
+  if(length $from == 0) { $from = 1; $to = 20; }
+
+  $return .= print_input_data($job);
+  if(-f 'summary.txt') {
+    $return .= $q->p("<a href=\"" . $job->get_results_file_url('summary.txt')
+	 . "\">Download output file</a>.");
+  } else {
+    $return .= $q->p("No output file was produced. Please inspect the log file 
+to determine the problem.");
+    $return .= $q->p("<a href=\"" . 
+	$job->get_results_file_url('saxsmerge.log') .  
+	"\">View FoXSDock log file</a>.");
+  }
+  #$return .= $job->get_results_available_time();
+  return $return;
 }
 
 1;
