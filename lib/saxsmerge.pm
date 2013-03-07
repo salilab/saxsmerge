@@ -229,8 +229,8 @@ sub get_results_page {
   my $to = $q->param('to');
   if(length $from == 0) { $from = 1; $to = 20; }
 
-  $return .= print_input_data($job);
   if(-f 'summary.txt') {
+    #$return .= print_input_data($job);
     $return .= $q->p("<a href=\"" . $job->get_results_file_url('summary.txt')
 	 . "\">Download output file</a>.");
   } else {
