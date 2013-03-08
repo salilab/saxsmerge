@@ -1,3 +1,4 @@
+import os
 import saliweb.backend
 
 class Job(saliweb.backend.Job):
