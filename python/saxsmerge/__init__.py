@@ -15,6 +15,9 @@ class Job(saliweb.backend.Job):
     def get_args(self):
         return self.get_input_args() + ' ' + self.get_protection_args()
 
+    def complete(self):
+        os.chmod(".", 0775)
+
     def run(self):
         args = self.get_args()
         script="""
