@@ -140,7 +140,10 @@ sub get_input_form {
              $q->table($q->Tr($q->td($q->button(-value=>'Add more profiles',
                                        -onClick=>"add_profile()"))) .
                        $q->Tr($q->td($q->input({-type=>"submit", -value=>"Submit"})),
-                              $q->td($q->input({-type=>"reset", -value=>"Clear"}))));
+                              $q->td($q->input({-type=>"reset", -value=>"Clear"})))) .
+             $self->get_advanced_options();
+
+  	    
 
   return #$q->h2({-align=>"center"}, "SAXS Merge ...") .
   $q->start_form({-name=>"saxsmerge_form", -method=>"post",
@@ -218,6 +221,21 @@ sub get_submit_page {
 
 }
 
+sub gen_gnuplot_script {
+  my $infile=shift;
+  my $outfile=shift;
+
+# output figure
+my $gnuplot_file = "Cpgnuplot_" . $infile;
+open OUT, ">$gnuplot_file";
+print OUT "set terminal canvas solid butt size 400,350 fsize 10 lw 1.5 fontscale 1 name \"$outfile\" jsdir \".\"\n";
+print OUT "set title 'MES fit';set xlabel 'q'; set ylabel 'I(q) log-scale'\n";
+print OUT "plot '$infile' u 1:2 w l t 'experimental'\n";
+close OUT;
+`/modbase5/home/foxs/www/foxs/gnuplot-4.6.0/src/gnuplot $gnuplot_file`;
+
+}
+
 sub get_results_page {
   my ($self, $job) = @_;
   my $q = $self->cgi;
@@ -225,9 +243,7 @@ sub get_results_page {
   my $return = '';
   my $jobname = $job->name;
   my $joburl = $job->results_url;
-  my $passwd = $q->param('passwd');  my $from = $q->param('from');
-  my $to = $q->param('to');
-  if(length $from == 0) { $from = 1; $to = 20; }
+  my $passwd = $q->param('passwd');
 
   if(-f 'summary.txt') {
     #$return .= print_input_data($job);
@@ -240,15 +256,98 @@ sub get_results_page {
     $return .= $q->p("<a href=\"" .
 	        $job->get_results_file_url('summary.txt')
 	 . "\">Summary file</a>.");
+
+    #`echo HELLO > tmpfile.txt`;
+    #$return .= `ls -l`;
+    #return $return;
+    #gen_gnuplot_script('data_merged.dat','jsoutput.1.js');
+    $return .= printCanvas();
+
+    $return .= "<script src=\"jsoutput.1.js\"></script>\n"
+    . "<table align='center'><tr><td><div  id=\"wrapper\">
+    <canvas id=\"jsoutput_1\" width=400 height=350 tabindex=\"0\" oncontextmenu=\"return false;\">
+    <div class='box'><h2>Your browser does not support the HTML 5 canvas element</h2></div>
+    </canvas>
+     <div id=\"buttonWrapper\">
+      <input type=\"button\" id=\"minus\"   onclick=\"gnuplot.unzoom();\">
+    	    </div></div>
+    <script>
+      if (window.attachEvent) {window.attachEvent('onload', jsoutput_1);}
+    else if (window.addEventListener) {window.addEventListener('load', jsoutput_1, false);}
+    else {document.addEventListener('load', jsoutput_1, false);}
+    </script>"
+    . "<input type=\"button\" id=\"toggle\" onclick=\"gnuplot.toggle_plot('jsoutput_1_plot_1');\">\n";
+
   } else {
     $return .= $q->p("No output file was produced. Please inspect the log file 
 to determine the problem.");
     $return .= $q->p("<a href=\"" . 
 	$job->get_results_file_url('saxsmerge.log') .  
-	"\">View FoXSDock log file</a>.");
+	"\">View SAXS Merge log file</a>.");
   }
   #$return .= $job->get_results_available_time();
   return $return;
 }
+
+sub get_advanced_options {
+    my $self = shift;
+    my $q = $self->cgi;
+    return $self->make_dropdown("saxs", "SAXS Options", 0,
+                  $q->table(
+                      $q->Tr($q->td('Maximal q Value'),
+                             $q->td($q->textfield({-name=>'saxs_qmax', -size=>"10",
+                                                   -value=>"0.5"}))),
+                      $q->Tr($q->td('Profile Size'),
+                             $q->td($q->textfield({-name=>'saxs_psize', -size=>"10",
+                                                   -value=>"500"})),
+                             $q->td('# of points in the computed profile')),
+                      $q->Tr($q->td('Hydration Layer'),
+                             $q->td('<input type="checkbox" name="saxs_hlayer" ' .
+                                    'checked="1" />'),
+                             $q->td('use hydration layer to improve fitting')),
+                      $q->Tr($q->td('Excluded Volume Adjustment'),
+                             $q->td('<input type="checkbox" name="saxs_exvolume" ' .
+                                    'checked="1" />'),
+                             $q->td('adjust the protein excluded volume ' .
+                                    'to improve fitting')),
+                      $q->Tr($q->td('Implicit Hydrogens'),
+                             $q->td('<input type="checkbox" name="saxs_ihydrogens"' .
+                                    'checked="1" />'),
+                             $q->td('implicitly consider hydrogen atoms')),
+                      $q->Tr($q->td('Background Adjustment'),
+                             $q->td('<input type="checkbox" name="saxs_backadj"' .
+                                    ' />'),
+                             $q->td('adjust the background of the ' .
+                                    'experimental profile')),
+                      $q->Tr($q->td('Residue Level Computation'),
+                             $q->td('<input type="checkbox" name="saxs_coarse"' .
+                                    ' />'),
+                             $q->td('perform coarse grained profile ' .
+                                    'computation for Ca atoms only')),
+                      $q->Tr($q->td('Offset'),
+                             $q->td('<input type="checkbox" name="saxs_offset"' .
+                                    ' />'),
+                             $q->td('use offset in profile fitting')),
+                  ));
+}
+
+sub printCanvas {
+return 
+"<script src=\"/foxs/gnuplot_js/canvastext.js\"></script>
+<script src=\"/foxs/gnuplot_js/gnuplot_common.js\"></script>
+<script src=\"/foxs/gnuplot_js/gnuplot_dashedlines.js\"></script>
+<script src=\"/foxs/gnuplot_js/gnuplot_mouse.js\"></script>
+<script type=\"text/javascript\">
+var canvas, ctx;
+gnuplot.grid_lines = true;
+gnuplot.zoomed = false;
+gnuplot.active_plot_name = \"gnuplot_canvas\";
+gnuplot.active_plot = gnuplot.dummyplot;
+gnuplot.dummyplot = function() {};
+function gnuplot_canvas( plot ) { gnuplot.active_plot(); };
+</script>\n";
+}
+
+
 
 1;
