@@ -40,6 +40,22 @@ date
         r = self.runnercls(script)
         r.set_sge_options('-l arch=linux-x64')
         return r
+    
+    def postprocess(self):
+        gnuplot_file = "Cpgnuplot_data"
+        outfile = "jsoutput.1.js"
+        infile = "data_merged.dat"
+        fl=open(gnuplot_file,'w')
+        fl.write('set terminal canvas solid butt size 400,350 fsize 10 '
+                 'lw 1.5 fontscale 1 name "%s" jsdir "."\n' % outfile)
+        fl.write('set title "merged data"\n')
+        fl.write('set log y\n')
+        fl.write('set xlabel "q"\n')
+        fl.write('set ylabel "I(q) log-scale"\n')
+        fl.write('p "%s" u 1:2 w l t "data"\n' % infile)
+        fl.close()
+        os.system('/modbase5/home/foxs/www/foxs/gnuplot-4.6.0/src/gnuplot %s' \
+                        % gnuplot_file)
 
 def get_web_service(config_file):
     db = saliweb.backend.Database(Job)
