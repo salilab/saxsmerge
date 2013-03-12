@@ -260,23 +260,21 @@ sub get_results_page {
     #`echo HELLO > tmpfile.txt`;
     #$return .= `ls -l`;
     #return $return;
-    #gen_gnuplot_script('data_merged.dat','jsoutput.1.js');
     $return .= printCanvas();
 
-    $return .= "<script src=\"jsoutput.1.js\"></script>\n"
-    . "<table align='center'><tr><td><div  id=\"wrapper\">
-    <canvas id=\"jsoutput_1\" width=400 height=350 tabindex=\"0\" oncontextmenu=\"return false;\">
+    $return .= "<script src='"
+	        . $job->get_results_file_url('jsoutput_1.js')
+                .  "'></script>\n";
+    #. "<table align='center'><tr><td><div  id=\"wrapper\">
+    $return .= "<canvas id=\"jsoutput_1\" width=400 height=350 tabindex=\"0\" oncontextmenu=\"return false;\">
     <div class='box'><h2>Your browser does not support the HTML 5 canvas element</h2></div>
-    </canvas>
-     <div id=\"buttonWrapper\">
-      <input type=\"button\" id=\"minus\"   onclick=\"gnuplot.unzoom();\">
-    	    </div></div>
-    <script>
-      if (window.attachEvent) {window.attachEvent('onload', jsoutput_1);}
-    else if (window.addEventListener) {window.addEventListener('load', jsoutput_1, false);}
-    else {document.addEventListener('load', jsoutput_1, false);}
-    </script>"
-    . "<input type=\"button\" id=\"toggle\" onclick=\"gnuplot.toggle_plot('jsoutput_1_plot_1');\">\n";
+    </canvas>";
+    #$return .= "<div id=\"buttonWrapper\">
+    #  <input type=\"button\" id=\"minus\"   onclick=\"gnuplot.unzoom();\">
+    # 	    </div>
+    #<input type=\"button\" id=\"toggle\" onclick=\"gnuplot.toggle_plot('jsoutput_1_plot_1');\">\n";
+    $return .= "<script> window.addEventListener('load', jsoutput_1, false);
+                </script>\n";
 
   } else {
     $return .= $q->p("No output file was produced. Please inspect the log file 

@@ -21,6 +21,7 @@ class Job(saliweb.backend.Job):
 
     def run(self):
         args = self.get_args()
+        post = self.get_gnuplots()
         script="""
 date
 hostname
@@ -35,30 +36,34 @@ SMERGE="/netapp/sali/saxsmerge/imp/src/applications/saxs_merge/saxs_merge.py"
 
 $IMPPY $SMERGE %s
 
+/netapp/sali/yannick/bin/gnuplot <<EOF
+%s
+EOF
+
 date
-""" % args
+""" % (args,post)
         r = self.runnercls(script)
         r.set_sge_options('-l arch=linux-x64')
         return r
     
-    def postprocess(self):
+    def get_gnuplots(self):
         gnuplot_file = "Cpgnuplot_data"
-        outfile = "jsoutput.1.js"
+        outfile = "jsoutput_1"
         infile = "data_merged.dat"
-        fl=open(gnuplot_file,'w')
-        fl.write('set terminal canvas solid butt size 400,350 fsize 10 '
-                 'lw 1.5 fontscale 1 name "%s" jsdir "."\n' % outfile)
-        fl.write('set title "merged data"\n')
-        fl.write('set log y\n')
-        fl.write('set xlabel "q"\n')
-        fl.write('set ylabel "I(q) log-scale"\n')
-        fl.write('p "%s" u 1:2 w l t "data"\n' % infile)
-        fl.close()
-        os.system('/modbase5/home/foxs/www/foxs/gnuplot-4.6.0/src/gnuplot %s' \
-                        % gnuplot_file)
+        script=""
+        script += 'set terminal canvas solid butt size 400,350 fsize 10 '
+        script += 'lw 1.5 fontscale 1 name "%s" jsdir "."\n' % outfile
+        script += 'set output "%s.js"\n' % outfile
+        script += 'set title "merged data"\n'
+        script += 'set log y\n'
+        script += 'set xlabel "q"\n'
+        script += 'set ylabel "I(q) log-scale"\n'
+        script += 'p "%s" u 1:2 w p t "data"\n' % infile
+        return script
 
 def get_web_service(config_file):
     db = saliweb.backend.Database(Job)
     config = saliweb.backend.Config(config_file)
     return saliweb.backend.WebService(config, db)
+
 
