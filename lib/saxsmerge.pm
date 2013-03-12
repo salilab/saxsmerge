@@ -221,21 +221,6 @@ sub get_submit_page {
 
 }
 
-sub gen_gnuplot_script {
-  my $infile=shift;
-  my $outfile=shift;
-
-# output figure
-my $gnuplot_file = "Cpgnuplot_" . $infile;
-open OUT, ">$gnuplot_file";
-print OUT "set terminal canvas solid butt size 400,350 fsize 10 lw 1.5 fontscale 1 name \"$outfile\" jsdir \".\"\n";
-print OUT "set title 'MES fit';set xlabel 'q'; set ylabel 'I(q) log-scale'\n";
-print OUT "plot '$infile' u 1:2 w l t 'experimental'\n";
-close OUT;
-`/modbase5/home/foxs/www/foxs/gnuplot-4.6.0/src/gnuplot $gnuplot_file`;
-
-}
-
 sub get_results_page {
   my ($self, $job) = @_;
   my $q = $self->cgi;
@@ -246,35 +231,28 @@ sub get_results_page {
   my $passwd = $q->param('passwd');
 
   if(-f 'summary.txt') {
-    #$return .= print_input_data($job);
-    $return .= $q->p("<a href=\"" .
-		$job->get_results_file_url('data_merged.dat')
-	 . "\">Merged data</a>.");
-    $return .= $q->p("<a href=\"" .
-	        $job->get_results_file_url('mean_merged.dat')
-	 . "\">Merged mean</a>.");
-    $return .= $q->p("<a href=\"" .
-	        $job->get_results_file_url('summary.txt')
-	 . "\">Summary file</a>.");
+      #output files
+    $return .= $q->h1("Output files");
+    $return .= $q->a({-href=>$job->get_results_file_url('data_merged.dat')},
+	               "Merged data");
+    $return .= $q->a({-href=>$job->get_results_file_url('mean_merged.dat')},
+	               "Merged mean");
+    $return .= $q->a({-href=>$job->get_results_file_url('summary.txt')},
+	               "Summary file");
 
-    #`echo HELLO > tmpfile.txt`;
-    #$return .= `ls -l`;
-    #return $return;
-    $return .= printCanvas();
+     #gnuplots
+    $return .= $q->h1("Plots");
+    $return .= setupCanvas();
 
-    $return .= "<script src='"
-	        . $job->get_results_file_url('jsoutput_1.js')
-                .  "'></script>\n";
+    $return .= $q->script({-src=>$job->get_results_file_url('jsoutput.js')},"");
     #. "<table align='center'><tr><td><div  id=\"wrapper\">
-    $return .= "<canvas id=\"jsoutput_1\" width=400 height=350 tabindex=\"0\" oncontextmenu=\"return false;\">
-    <div class='box'><h2>Your browser does not support the HTML 5 canvas element</h2></div>
-    </canvas>";
-    #$return .= "<div id=\"buttonWrapper\">
-    #  <input type=\"button\" id=\"minus\"   onclick=\"gnuplot.unzoom();\">
-    # 	    </div>
-    #<input type=\"button\" id=\"toggle\" onclick=\"gnuplot.toggle_plot('jsoutput_1_plot_1');\">\n";
-    $return .= "<script> window.addEventListener('load', jsoutput_1, false);
-                </script>\n";
+
+    $return .= $q->table(
+        $q->Tr({align=>'CENTER', valign=>'TOP'},
+            [$q->th(["Log scale", "Linear scale"]),
+            $q->td([drawCanvas($q,1), drawCanvas($q,2)])]
+    )
+    );
 
   } else {
     $return .= $q->p("No output file was produced. Please inspect the log file 
@@ -329,7 +307,7 @@ sub get_advanced_options {
                   ));
 }
 
-sub printCanvas {
+sub setupCanvas {
 return 
 "<script src=\"/foxs/gnuplot_js/canvastext.js\"></script>
 <script src=\"/foxs/gnuplot_js/gnuplot_common.js\"></script>
@@ -345,6 +323,28 @@ gnuplot.dummyplot = function() {};
 function gnuplot_canvas( plot ) { gnuplot.active_plot(); };
 </script>\n";
 }
+
+sub drawCanvas {
+    my $q = shift;
+    my $num = shift;
+    my $return="";
+    #canvas
+    $return .= "
+        <canvas id='jsoutput_$num' width=400 height=350 tabindex='0' oncontextmenu='return false;'>
+            <div class='box'><h2>Your browser does not support the HTML 5 canvas element</h2></div>
+        </canvas>";
+    #buttons
+    $return .= $q->div({id=>'buttonWrapper'},
+           [
+             $q->input({type=>'button', id=>'minus', value=>'reset',
+                        onclick=>'gnuplot.unzoom();'}),
+             $q->input({type=>'button', id=>'toggle', value=>'toggle mean',
+                        onclick=>"gnuplot.toggle_plot('jsoutput_" . "$num" .  "_plot_2');"})
+           ]);
+    $return .= "<script> window.addEventListener('load', jsoutput_$num, false); </script>";
+    return $return;
+}
+
 
 
 

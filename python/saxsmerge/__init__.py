@@ -21,7 +21,7 @@ class Job(saliweb.backend.Job):
 
     def run(self):
         args = self.get_args()
-        post = self.get_gnuplots()
+        post = self.gen_gnuplots()
         script="""
 date
 hostname
@@ -36,9 +36,10 @@ SMERGE="/netapp/sali/saxsmerge/imp/src/applications/saxs_merge/saxs_merge.py"
 
 $IMPPY $SMERGE %s
 
-/netapp/sali/yannick/bin/gnuplot <<EOF
+cat <<EOF > Cpgnuplot
 %s
 EOF
+/netapp/sali/yannick/bin/gnuplot Cpgnuplot
 
 date
 """ % (args,post)
@@ -46,19 +47,41 @@ date
         r.set_sge_options('-l arch=linux-x64')
         return r
     
-    def get_gnuplots(self):
+    def plot_log_scale(self,outfile):
         gnuplot_file = "Cpgnuplot_data"
-        outfile = "jsoutput_1"
-        infile = "data_merged.dat"
-        script=""
+        datafile = "data_merged.dat"
+        meanfile = "mean_merged.dat"
+        script="reset\n"
         script += 'set terminal canvas solid butt size 400,350 fsize 10 '
         script += 'lw 1.5 fontscale 1 name "%s" jsdir "."\n' % outfile
-        script += 'set output "%s.js"\n' % outfile
         script += 'set title "merged data"\n'
         script += 'set log y\n'
         script += 'set xlabel "q"\n'
         script += 'set ylabel "I(q) log-scale"\n'
-        script += 'p "%s" u 1:2 w p t "data"\n' % infile
+        script += 'p "%s" u 1:2 w p t "data", "%s" u 1:2 w l t "mean"\n' \
+                % (datafile,meanfile)
+        return script
+
+    def plot_lin_scale(self,outfile):
+        gnuplot_file = "Cpgnuplot_data"
+        datafile = "data_merged.dat"
+        meanfile = "mean_merged.dat"
+        script="reset\n"
+        script += 'set terminal canvas solid butt size 400,350 fsize 10 '
+        script += 'lw 1.5 fontscale 1 name "%s" jsdir "."\n' % outfile
+        script += 'set title "merged data"\n'
+        script += 'set xlabel "q"\n'
+        script += 'set ylabel "I(q) linear scale"\n'
+        script += 'p "%s" u 1:2 w p t "data", "%s" u 1:2 w l t "mean"\n' \
+                % (datafile,meanfile)
+        return script
+
+    def gen_gnuplots(self):
+        outfile = "jsoutput"
+        script=""
+        script += 'set output "%s.js"\n' % outfile
+        script += self.plot_log_scale(outfile+'_1')
+        script += self.plot_lin_scale(outfile+'_2')
         return script
 
 def get_web_service(config_file):
