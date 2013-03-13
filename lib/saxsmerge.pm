@@ -130,19 +130,24 @@ sub get_input_form {
   my $self = shift;
   my $q = $self->cgi;
 
-  my $form = $q->table($q->Tr($q->td("Email (Required)"),
-                              $q->td($q->textfield({-name=>"jobemail",
-                                                    -value=>$self->email,
-                                                    -size=>"25"})))) .
-             $q->table({-id=>'profiles'},
-                      $q->td("upload SAXS profile " .
-                      $q->filefield({-name=>'uploaded_file'}))) .
-             $q->table($q->Tr($q->td($q->button(-value=>'Add more profiles',
-                                       -onClick=>"add_profile()"))) .
-                       $q->Tr($q->td($q->input({-type=>"submit", -value=>"Submit"})),
-                              $q->td($q->input({-type=>"reset", -value=>"Clear"})))) .
+  my $form = $q->table( 
+                $q->Tr( $q->td("Email (Required)"),
+                        $q->td($q->textfield({-name=>"jobemail",
+                                              -value=>$self->email,
+                                              -size=>"25"}))
+                       ),
+                $q->Tr( $q->td("upload SAXS profile "),
+                        $q->td($q->filefield({-name=>'uploaded_file'})),
+                        $q->td($q->textfield({name=>'recordings',value=>10,
+                                              maxlength=>3,size=>"1"})),
+                        $q->td("recordings")
+                       ),
+                $q->Tr($q->td($q->button(-value=>'Add more profiles',
+                                       -onClick=>"add_profile()"))),
+                $q->Tr( $q->td($q->input({-type=>"submit", -value=>"Submit"})),
+                        $q->td($q->input({-type=>"reset", -value=>"Clear"}))
+                       ) ) .
              $self->get_advanced_options();
-
   	    
 
   return #$q->h2({-align=>"center"}, "SAXS Merge ...") .
@@ -272,43 +277,56 @@ to determine the problem.");
 sub get_advanced_options {
     my $self = shift;
     my $q = $self->cgi;
-    return $self->make_dropdown("saxs", "SAXS Options", 0,
-                  $q->table(
-                      $q->Tr($q->td('Maximal q Value'),
-                             $q->td($q->textfield({-name=>'saxs_qmax', -size=>"10",
-                                                   -value=>"0.5"}))),
-                      $q->Tr($q->td('Profile Size'),
-                             $q->td($q->textfield({-name=>'saxs_psize', -size=>"10",
-                                                   -value=>"500"})),
-                             $q->td('# of points in the computed profile')),
-                      $q->Tr($q->td('Hydration Layer'),
-                             $q->td('<input type="checkbox" name="saxs_hlayer" ' .
-                                    'checked="1" />'),
-                             $q->td('use hydration layer to improve fitting')),
-                      $q->Tr($q->td('Excluded Volume Adjustment'),
-                             $q->td('<input type="checkbox" name="saxs_exvolume" ' .
-                                    'checked="1" />'),
-                             $q->td('adjust the protein excluded volume ' .
-                                    'to improve fitting')),
-                      $q->Tr($q->td('Implicit Hydrogens'),
-                             $q->td('<input type="checkbox" name="saxs_ihydrogens"' .
-                                    'checked="1" />'),
-                             $q->td('implicitly consider hydrogen atoms')),
-                      $q->Tr($q->td('Background Adjustment'),
-                             $q->td('<input type="checkbox" name="saxs_backadj"' .
-                                    ' />'),
-                             $q->td('adjust the background of the ' .
-                                    'experimental profile')),
-                      $q->Tr($q->td('Residue Level Computation'),
-                             $q->td('<input type="checkbox" name="saxs_coarse"' .
-                                    ' />'),
-                             $q->td('perform coarse grained profile ' .
-                                    'computation for Ca atoms only')),
-                      $q->Tr($q->td('Offset'),
-                             $q->td('<input type="checkbox" name="saxs_offset"' .
-                                    ' />'),
-                             $q->td('use offset in profile fitting')),
-                  ));
+    my $return = $q->table(
+        $q->tbody($q->Tr([
+            $q->th("General")
+            ,$q->td([
+                'First line of output files is a header'
+                ,$q->input({-type=>'checkbox',
+                            -name=>"gen_header"})
+                ])
+            ,$q->td([
+                'Output data files for parsed input files as well'
+                ,$q->input({-type=>'checkbox',
+                            -name=>"gen_input"})
+                ])
+            ,$q->td([
+                'Output level'
+                ,$q->Select({onchange=>"gen_output_context(this);"},
+                            $q->option("sparse")
+                            ,$q->option({selected=>"selected"},"normal")
+                            ,$q->option("full")
+                           )
+                ,$q->script(qq/function gen_output_context(sel)
+                    {
+                        var text;
+                        switch (sel.options[sel.selectedIndex].text)
+                        {
+                          case 'sparse':
+                            text="only output q,I,err columns"
+                            break;
+                          case 'normal':
+                            text="output q,I,err,eorigin,eoriname,eextrapol columns"
+                            break;
+                          case 'full':
+                            text="output all flags"
+                            break;
+                        }
+                        document.getElementById('gen_output_text').innerHTML=text;
+                    }/).$q->p({id=>"gen_output_text"})
+                ])
+            ]))
+        ,$q->tbody($q->Tr([
+            $q->th("Cleanup (Step 1)")
+            ,$q->td([
+                'Type I error (default 1e-4)'
+                ,$q->textfield({name=>'clean_alpha',value=>1e-4,
+                               size=>"5"})
+                ])
+            ]))
+        );
+
+    return $self->make_dropdown("saxs", "Advanced Options", 0, $return);
 }
 
 sub setupCanvas {
