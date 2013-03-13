@@ -155,6 +155,9 @@ sub get_input_form {
   $form .= $q->h4("Advanced options");
   $form .= $self->get_advanced_options();
   	    
+  $form .= $q->h4("Expert options");
+  $form .= $self->get_expert_options();
+  	    
   return #$q->h2({-align=>"center"}, "SAXS Merge ...") .
   $q->start_form({-name=>"saxsmerge_form", -method=>"post",
                   -action=>$self->submit_url}) .
@@ -415,7 +418,44 @@ sub get_advanced_options {
             ]))
         );
 
-    return $self->make_dropdown("saxs", "Show/Hide", 0, $return);
+    return $self->make_dropdown("advanced", "Show/Hide", 0, $return);
+}
+
+sub get_expert_options {
+    my $self = shift;
+    my $q = $self->cgi;
+    my $return = $q->table(
+        $q->tbody($q->Tr([
+            $q->th("General")
+            ,$q->td([
+                'Take q values from first input file',
+                ,$q->input({-type=>'checkbox',
+                            -name=>"gen_npoints_input",
+-onchange=>"document.getElementById('gen_npoints_val').disabled=this.checked;"})
+                ])
+            ,$q->td([
+                'Number of evenly spaced q values to return for the mean',
+                ,$q->textfield({name=>'gen_npoints_val', id=>'gen_npoints_val',
+                        value=>200, size=>"5"})
+                ])
+            ,$q->td([
+                'Lower bound for lambda in steps 2 and 5'
+                ,$q->textfield({name=>'gen_npoints_val',
+                        value=>0.005, size=>"5"})
+                ])
+            ]))
+        #cleanup
+        ,$q->tbody($q->Tr([
+            $q->th("Cleanup (Step 1)")
+            ,$q->td([
+                'Start discarding curve after qcut='
+                ,$q->textfield({name=>'clean_cut',value=>0.1,
+                               size=>"5"})
+                ])
+            ]))
+        );
+
+    return $self->make_dropdown("expert", "Show/Hide", 0, $return);
 }
 
 sub setupCanvas {
