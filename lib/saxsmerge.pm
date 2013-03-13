@@ -130,26 +130,31 @@ sub get_input_form {
   my $self = shift;
   my $q = $self->cgi;
 
-  my $form = $q->table( 
+  my $form = $q->h4("Required inputs");
+  $form .= $q->table(
                 $q->Tr( $q->td("Email (Required)"),
                         $q->td($q->textfield({-name=>"jobemail",
                                               -value=>$self->email,
                                               -size=>"25"}))
                        ),
-                $q->Tr( $q->td("upload SAXS profile "),
-                        $q->td($q->filefield({-name=>'uploaded_file'})),
-                        $q->td($q->textfield({name=>'recordings',value=>10,
-                                              maxlength=>3,size=>"1"})),
-                        $q->td("recordings")
-                       ),
-                $q->Tr($q->td($q->button(-value=>'Add more profiles',
+                $q->Tr($q->td("Number of times each profile has been recorded")
+                       ,$q->td($q->textfield({name=>'recordings',value=>10,
+                                              maxlength=>3,size=>"1"}))
+                      ),
+                $q->tbody({id=>'profiles'}, 
+                  $q->Tr( $q->td("upload SAXS profile "),
+                        $q->td($q->filefield({-name=>'uploaded_file'}))
+                       )),
+                  $q->Tr($q->td($q->button(-value=>'Add more profiles',
                                        -onClick=>"add_profile()"))),
-                $q->Tr( $q->td($q->input({-type=>"submit", -value=>"Submit"})),
+                  $q->Tr( $q->td($q->input({-type=>"submit", -value=>"Submit"})),
                         $q->td($q->input({-type=>"reset", -value=>"Clear"}))
-                       ) ) .
-             $self->get_advanced_options();
-  	    
+                       )
+                   );
 
+  $form .= $q->h4("Advanced options");
+  $form .= $self->get_advanced_options();
+  	    
   return #$q->h2({-align=>"center"}, "SAXS Merge ...") .
   $q->start_form({-name=>"saxsmerge_form", -method=>"post",
                   -action=>$self->submit_url}) .
@@ -175,7 +180,7 @@ sub get_submit_page {
 
     check_required_email($email);
 
-  #create job directory time_stamp
+    #create job directory time_stamp
     my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime;
     my $time_stamp = $sec."_".$min."_".$hour."_".$mday."_".$mon."_".$year;
     my $job = $self->make_job($time_stamp, $self->email);
@@ -185,7 +190,8 @@ sub get_submit_page {
     open(DATAFILE, "> $data_file_name")
       or throw saliweb::frontend::InternalError("Cannot open $data_file_name: $!");
 
-
+    #handle input profiles
+    my $records = $q->param("recordings");
     my @uplfiles = $q->upload("uploaded_file");
     my $upl_num = 0;
     foreach my $upl (@uplfiles) {      
@@ -201,16 +207,45 @@ sub get_submit_page {
 	    print OUTFILE $_;
         }
         close OUTFILE;
-	print DATAFILE "$upl\n";
+	print DATAFILE "$upl=$records\n";
         #system("echo $upl >>$list");
 
         $upl_num++;
 	}
     }
-    
     print $upl_num;
 
-    
+    use Scalar::Util qw/looks_like_number/;
+
+    #advanced options
+    #general
+    if (defined $q->param("gen_header")) {print DATAFILE "--header\n";}
+    if (defined $q->param("gen_input")) {print DATAFILE "--allfiles\n";}
+    print DATAFILE "--outlevel=".$q->param("gen_output")."\n";
+
+    #cleanup
+    if (looks_like_number($q->param("clean_alpha")))
+        { print DATAFILE "--aalpha=".$q->param("clean_alpha")."\n"; }
+
+    #fitting
+    print DATAFILE "--bmean=".$q->param("fit_param")."\n";
+    if (not defined $q->param("fit_comp")) {print DATAFILE "--bnocomp\n";}
+    if (defined $q->param("fit_bars")) {print DATAFILE "--berror\n";}
+
+    #rescaling
+    print DATAFILE "--cmodel=".$q->param("res_model")."\n";
+
+    #classification
+    if (looks_like_number($q->param("class_alpha")))
+        { print DATAFILE "--dalpha=".$q->param("class_alpha")."\n"; }
+
+    #merging
+    print DATAFILE "--emean=".$q->param("merge_param")."\n";
+    if (not defined $q->param("merge_comp"))
+        {print DATAFILE "--enocomp\n";}
+    if (defined $q->param("merge_bars")) {print DATAFILE "--eerror\n";}
+    if (defined $q->param("merge_noextrapol"))
+        {print DATAFILE "--enoextrapolate\n";}
 
     close(DATAFILE);
 
@@ -292,41 +327,95 @@ sub get_advanced_options {
                 ])
             ,$q->td([
                 'Output level'
-                ,$q->Select({onchange=>"gen_output_context(this);"},
-                            $q->option("sparse")
-                            ,$q->option({selected=>"selected"},"normal")
-                            ,$q->option("full")
-                           )
-                ,$q->script(qq/function gen_output_context(sel)
-                    {
-                        var text;
-                        switch (sel.options[sel.selectedIndex].text)
-                        {
-                          case 'sparse':
-                            text="only output q,I,err columns"
-                            break;
-                          case 'normal':
-                            text="output q,I,err,eorigin,eoriname,eextrapol columns"
-                            break;
-                          case 'full':
-                            text="output all flags"
-                            break;
-                        }
-                        document.getElementById('gen_output_text').innerHTML=text;
-                    }/).$q->p({id=>"gen_output_text"})
+                ,$q->popup_menu(-name=>"gen_output",
+                                -Values=>['sparse','normal','full'],
+                                -default=>'normal',
+                                -onChange=>"gen_output_context(this);"),
+                ,$q->p({id=>"gen_output_text"})
                 ])
             ]))
+        #cleanup
         ,$q->tbody($q->Tr([
             $q->th("Cleanup (Step 1)")
             ,$q->td([
-                'Type I error (default 1e-4)'
+                'Type I error'
                 ,$q->textfield({name=>'clean_alpha',value=>1e-4,
                                size=>"5"})
                 ])
             ]))
+        #fitting
+        ,$q->tbody($q->Tr([
+            $q->th("Fitting (Step 2)")
+            ,$q->td([
+                'Parameter set',
+                ,$q->popup_menu(-name=>"fit_param",
+                                -Values=>['Flat','Simple','Generalized','Full'],
+                                -default=>'Full',
+                                -onChange=>"fit_param_context(this);"),
+                ,$q->p({id=>"fit_param_text"})
+                ])
+            ,$q->td([
+                'Model comparison',
+                ,$q->input({-type=>'checkbox',
+                            -checked=>"checked"
+                            -name=>"fit_comp"})
+                ])
+            ,$q->td([
+                'Always compute error bars',
+                ,$q->input({-type=>'checkbox',
+                            -name=>"fit_bars"})
+                ])
+            ]))
+        #rescaling
+        ,$q->tbody($q->Tr([
+            $q->th("Rescaling (Step 3)")
+            ,$q->td([
+                'Model',
+                ,$q->popup_menu(-name=>"res_model",
+                                -Values=>['normal','normal-offset','lognormal'],
+                                -default=>'normal'),
+                ])
+            ]))
+        #classification
+        ,$q->tbody($q->Tr([
+            $q->th("Classification (Step 4)")
+            ,$q->td([
+                'Type I error',
+                ,$q->textfield({name=>'class_alpha',value=>0.05,
+                               size=>"5"})
+                ])
+            ]))
+        #merging
+        ,$q->tbody($q->Tr([
+            $q->th("Merging (Step 5)")
+            ,$q->td([
+                'Parameter set',
+                ,$q->popup_menu(-name=>"merge_param",
+                                -Values=>['Flat','Simple','Generalized','Full'],
+                                -default=>'Full',
+                                -onChange=>"merge_param_context(this);"),
+                ,$q->p({id=>"merge_param_text"})
+                ])
+            ,$q->td([
+                'Model comparison',
+                ,$q->input({-type=>'checkbox',
+                            -checked=>"checked"
+                            -name=>"merge_comp"})
+                ])
+            ,$q->td([
+                'Always compute error bars',
+                ,$q->input({-type=>'checkbox',
+                            -name=>"merge_bars"})
+                ])
+            ,$q->td([
+                "Don't extrapolate at all, even at low angle",
+                ,$q->input({-type=>'checkbox',
+                            -name=>"merge_noextrapol"})
+                ])
+            ]))
         );
 
-    return $self->make_dropdown("saxs", "Advanced Options", 0, $return);
+    return $self->make_dropdown("saxs", "Show/Hide", 0, $return);
 }
 
 sub setupCanvas {
