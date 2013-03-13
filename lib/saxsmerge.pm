@@ -233,12 +233,14 @@ sub get_results_page {
   if(-f 'summary.txt') {
       #output files
     $return .= $q->h1("Output files");
-    $return .= $q->a({-href=>$job->get_results_file_url('data_merged.dat')},
-	               "Merged data");
-    $return .= $q->a({-href=>$job->get_results_file_url('mean_merged.dat')},
-	               "Merged mean");
-    $return .= $q->a({-href=>$job->get_results_file_url('summary.txt')},
-	               "Summary file");
+    $return .= $q->p(
+              [$q->a({-href=>$job->get_results_file_url('data_merged.dat')},
+	               "Merged data"),
+               $q->a({-href=>$job->get_results_file_url('mean_merged.dat')},
+	               "Merged mean"),
+               $q->a({-href=>$job->get_results_file_url('summary.txt')},
+	               "Summary file")
+              ]);
 
      #gnuplots
     $return .= $q->h1("Plots");
@@ -248,9 +250,11 @@ sub get_results_page {
     #. "<table align='center'><tr><td><div  id=\"wrapper\">
 
     $return .= $q->table(
-        $q->Tr({align=>'CENTER', valign=>'TOP'},
+        $q->Tr({align=>'LEFT', valign=>'TOP'},
             [$q->th(["Log scale", "Linear scale"]),
-            $q->td([drawCanvas($q,1), drawCanvas($q,2)])]
+            $q->td([drawCanvas($q,1), drawCanvas($q,2)]),
+            $q->th(["Guinier plot", "Kratky plot"]),
+            $q->td([drawCanvas($q,3), drawCanvas($q,4)])]
     )
     );
 
@@ -336,10 +340,18 @@ sub drawCanvas {
     #buttons
     $return .= $q->div({id=>'buttonWrapper'},
            [
-             $q->input({type=>'button', id=>'minus', value=>'reset',
+             $q->input({type=>'button', id=>'minus'.$num, value=>'reset',
                         onclick=>'gnuplot.unzoom();'}),
-             $q->input({type=>'button', id=>'toggle', value=>'toggle mean',
-                        onclick=>"gnuplot.toggle_plot('jsoutput_" . "$num" .  "_plot_2');"})
+             $q->input({type=>'checkbox',checked=>"checked",id=>"data".$num,
+                        onclick=>"gnuplot.toggle_plot('jsoutput_"."$num"."_plot_1');"},
+                       "data"),
+             $q->input({type=>'checkbox',checked=>"checked",id=>"mean".$num,
+                        onclick=>"gnuplot.toggle_plot('jsoutput_"."$num"."_plot_2');"},
+                       "mean"),
+             $q->input({type=>'checkbox',checked=>"checked",id=>"SD".$num,
+                        onclick=>"gnuplot.toggle_plot('jsoutput_"."$num"."_plot_3');
+                                  gnuplot.toggle_plot('jsoutput_"."$num"."_plot_4');"},
+                       "+- SD")
            ]);
     $return .= "<script> window.addEventListener('load', jsoutput_$num, false); </script>";
     return $return;
