@@ -69,6 +69,7 @@ function merge_param_context(sel)
 
 function google_tracker()
 {
+  document.getElementById('outfiles').innerHTML="google tracker";
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-39277378-1']);
   _gaq.push(['_trackPageview']);

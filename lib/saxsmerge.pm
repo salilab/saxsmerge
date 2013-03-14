@@ -226,6 +226,7 @@ sub get_submit_page {
     if ($q->param("gen_header")) {print DATAFILE "--header\n";}
     if ($q->param("gen_input")) {print DATAFILE "--allfiles\n";}
     print DATAFILE "--outlevel=".$q->param("gen_output")."\n";
+    print DATAFILE "--stop=".$q->param("gen_stop")."\n";
 
     #cleanup
     if (looks_like_number($q->param("clean_alpha")))
@@ -279,6 +280,7 @@ sub get_submit_page {
             "Expert: general: lambda minimum is invalid positive float");
     }
     print DATAFILE "--lambdamin=$lambdamin\n";
+    if ($q->param("gen_postpone")) {print DATAFILE "--postpone_cleanup\n";}
     #cleanup
     my $qcut = $q->param("clean_cut");
     if ( not (looks_like_number($qcut) and $qcut>0))
@@ -348,44 +350,71 @@ sub get_results_page {
   my $joburl = $job->results_url;
   my $passwd = $q->param('passwd');
 
-  if(-f 'summary.txt') {
-      #output files
-    $return .= $q->h1("Output files");
-    $return .= $q->table(
-                $q->Tr($q->td(
-              [$q->a({-href=>$job->get_results_file_url('data_merged.dat')},
-	               "Merged data"),
-               $q->a({-href=>$job->get_results_file_url('mean_merged.dat')},
-	               "Merged mean"),
-               $q->a({-href=>$job->get_results_file_url('summary.txt')},
-	               "Summary file")
-              ])));
-
-     #gnuplots
-    $return .= $q->h1("Plots");
-    $return .= setupCanvas();
-
-    $return .= $q->script({-src=>$job->get_results_file_url('jsoutput.js')},"");
-    #. "<table align='center'><tr><td><div  id=\"wrapper\">
-
-    $return .= $q->table(
-        $q->Tr({align=>'LEFT', valign=>'TOP'},
-            [$q->th(["Log scale", "Linear scale"]),
-            $q->td([drawCanvas($q,1), drawCanvas($q,2)]),
-            $q->th(["Guinier plot", "Kratky plot"]),
-            $q->td([drawCanvas($q,3), drawCanvas($q,4)])]
-    )
-    );
-
-  } else {
+  if(not (-f 'summary.txt')) {
     $return .= $q->p("No output file was produced. Please inspect the log file 
 to determine the problem.");
     $return .= $q->p("<a href=\"" . 
 	$job->get_results_file_url('saxsmerge.log') .  
 	"\">View SAXS Merge log file</a>.");
+    return $return;
   }
-  #$return .= $job->get_results_available_time();
+
+  #output files
+  $return .= $q->h1("Results");
+  $return .= $q->h2({id=>"outfiles"},"Output files");
+  $return .= $q->script({src=>"html/saxsmerge.js"},"google_tracker();");
+  $return .= $q->table(
+              $q->Tr($q->td(
+            [$q->a({-href=>$job->get_results_file_url('data_merged.dat')},
+                     "Merged data"),
+             $q->a({-href=>$job->get_results_file_url('mean_merged.dat')},
+                     "Merged mean"),
+             $q->a({-href=>$job->get_results_file_url('summary.txt')},
+                     "Summary file")
+            ])));
+
+  if (-f 'mergeplots.js')
+  {
+      #merge stats
+      #$return .= $self->get_merge_stats($job->get_results_file_url('summary.txt'));
+      #gnuplots
+      $return .= $self->get_merge_plots();
+  }
   return $return;
+}
+
+sub get_merge_plots()
+{
+  my $self = shift;
+  my $q = $self->cgi;
+
+  my $return = $q->h2("Merge Plots");
+  $return .= setupCanvas();
+
+  $return .= $q->script({-src=>'mergeplots.js'},"");
+  #. "<table align='center'><tr><td><div  id=\"wrapper\">
+
+  $return .= $q->table(
+      $q->Tr({align=>'LEFT', valign=>'TOP'},
+          [$q->th(["Log scale", "Linear scale"]),
+          $q->td([drawCanvasMerge($q,1), drawCanvasMerge($q,2)]),
+          $q->th(["Guinier plot", "Kratky plot"]),
+          $q->td([drawCanvasMerge($q,3), drawCanvasMerge($q,4)])]
+  )
+  );
+
+  return $return;
+}
+
+sub get_merge_stats {
+    my ($self, $sumname) = @_;
+    my $q = $self->cgi;
+    #parse summary.txt file's merge section
+    open(FILE, $sumname);
+    while (<FILE>) { last if ( /^Merge file$/ );}
+    my $return = $q->h2("Merge statistics");
+    $return .= $q->table();
+    return $return;
 }
 
 sub get_advanced_options {
@@ -411,6 +440,12 @@ sub get_advanced_options {
                                 -default=>'normal',
                                 -onChange=>"gen_output_context(this);"),
                 ,$q->p({id=>"gen_output_text"})
+                ])
+            ,$q->td([
+                'Stop after step'
+                ,$q->popup_menu(-name=>"gen_stop",
+                                -Values=>['cleanup','fitting','rescaling','classification','merging'],
+                                -default=>'merging'),
                 ])
             ]))
         #cleanup
@@ -519,6 +554,11 @@ sub get_expert_options {
                 ,$q->textfield({name=>'gen_lambdamin',
                         value=>0.005, size=>"5"})
                 ])
+            ,$q->td([
+                'Cleanup step comes after rescaling step'
+                ,$q->checkbox(-label=>"",
+                            -name=>"gen_postpone")
+                ])
             ]))
         #cleanup
         ,$q->tbody($q->Tr([
@@ -583,8 +623,7 @@ sub get_expert_options {
 }
 
 sub setupCanvas {
-return 
-"<script src=\"/foxs/gnuplot_js/canvastext.js\"></script>
+return "<script src=\"/foxs/gnuplot_js/canvastext.js\"></script>
 <script src=\"/foxs/gnuplot_js/gnuplot_common.js\"></script>
 <script src=\"/foxs/gnuplot_js/gnuplot_dashedlines.js\"></script>
 <script src=\"/foxs/gnuplot_js/gnuplot_mouse.js\"></script>
@@ -599,13 +638,13 @@ function gnuplot_canvas( plot ) { gnuplot.active_plot(); };
 </script>\n";
 }
 
-sub drawCanvas {
+sub drawCanvasMerge {
     my $q = shift;
     my $num = shift;
     my $return="";
     #canvas
     $return .= "
-        <canvas id='jsoutput_$num' width=400 height=350 tabindex='0' oncontextmenu='return false;'>
+        <canvas id='mergeplots_$num' width=400 height=350 tabindex='0' oncontextmenu='return false;'>
             <div class='box'><h2>Your browser does not support the HTML 5 canvas element</h2></div>
         </canvas>";
     #buttons
@@ -613,18 +652,16 @@ sub drawCanvas {
            [
              $q->input({type=>'button', id=>'minus'.$num, value=>'reset',
                         onclick=>'gnuplot.unzoom();'}),
-             $q->input({type=>'checkbox',checked=>"checked",id=>"data".$num,
-                        onclick=>"gnuplot.toggle_plot('jsoutput_"."$num"."_plot_1');"},
-                       "data"),
-             $q->input({type=>'checkbox',checked=>"checked",id=>"mean".$num,
-                        onclick=>"gnuplot.toggle_plot('jsoutput_"."$num"."_plot_2');"},
-                       "mean"),
-             $q->input({type=>'checkbox',checked=>"checked",id=>"SD".$num,
-                        onclick=>"gnuplot.toggle_plot('jsoutput_"."$num"."_plot_3');
-                                  gnuplot.toggle_plot('jsoutput_"."$num"."_plot_4');"},
-                       "+- SD")
+             $q->checkbox(-id=>"data".$num, -label=>"data", -checked=>1,
+                            -onclick=>"gnuplot.toggle_plot('mergeplots_"."$num"."_plot_1');"),
+             $q->checkbox(-id=>"mean".$num, -label=>"mean", -checked=>1,
+                            -onclick=>"gnuplot.toggle_plot('mergeplots_"."$num"."_plot_2');"),
+             $q->checkbox(-id=>"SD".$num, -label=>"SD", -checked=>1,
+                          -onclick=>"gnuplot.toggle_plot('mergeplots_"."$num"."_plot_3');
+                                     gnuplot.toggle_plot('mergeplots_"."$num"."_plot_4');")
            ]);
-    $return .= "<script> window.addEventListener('load', jsoutput_$num, false); </script>";
+    $return .=
+    $q->script("window.addEventListener('load', mergeplots_$num, false);");
     return $return;
 }
 

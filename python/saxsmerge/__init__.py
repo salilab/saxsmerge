@@ -109,7 +109,7 @@ date
         return script
 
     def gen_gnuplots(self):
-        outfile = "jsoutput"
+        outfile = "mergeplots"
         script=""
         script += 'set output "%s.js"\n' % outfile
         script += self.plot_log_scale(outfile+'_1')
