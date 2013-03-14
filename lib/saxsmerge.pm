@@ -649,7 +649,7 @@ sub drawCanvasMerge {
             <div class='box'><h2>Your browser does not support the HTML 5 canvas element</h2></div>
         </canvas>";
     #buttons
-    $return .= $q->div({id=>'buttonWrapper'},
+    $return .= $q->table($q->Tr($q->td(
            [
              $q->input({type=>'button', id=>'minus'.$num, value=>'reset',
                         onclick=>'gnuplot.unzoom();'}),
@@ -660,7 +660,7 @@ sub drawCanvasMerge {
              $q->checkbox(-id=>"SD".$num, -label=>"SD", -checked=>1,
                           -onclick=>"gnuplot.toggle_plot('mergeplots_"."$num"."_plot_3');
                                      gnuplot.toggle_plot('mergeplots_"."$num"."_plot_4');")
-           ]);
+           ])));
     $return .=
     $q->script("window.addEventListener('load', mergeplots_$num, false);");
     return $return;
