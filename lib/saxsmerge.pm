@@ -52,7 +52,7 @@ sub get_help_page {
   } else {
     $file = "help.txt";
   }
-  return $self->get_text_file($file);
+  return $self->cgi->script("google_tracker();").$self->get_text_file($file);
 }
 
 sub new {
@@ -172,7 +172,7 @@ sub get_index_page {
 
   my $input_form = get_input_form($self, $q);
 
-  return "$input_form\n";
+  return $q->script("google_tracker();")."$input_form\n";
 
 }
 
@@ -330,17 +330,20 @@ sub get_submit_page {
     #`echo $line >> ../submit.log`;
 
     # Inform the user of the job name and results URL
-    return $q->p("Your job has been submitted with job ID " . $job->name) .
-    #$q->p("Results will be found at <a href=\"" . $job->results_url . "\">this link</a>.");
-	$q->p("You will receive an e-mail with results link once the job has finished");
-
+    my $retval = $q->p("Your job has been submitted with job ID ".$job->name);
+    #$retval .= $q->p("Results will be found at <a href=\""
+    #                    . $job->results_url . "\">this link</a>.");
+    $retval .= $q->p("You will receive an e-mail with results link "
+                     ."once the job has finished");
+    $retval .= $q->script("google_tracker();");
+    return $retval;
 }
 
 sub get_results_page {
   my ($self, $job) = @_;
   my $q = $self->cgi;
 
-  my $return = '';
+  my $return = $q->script("google_tracker();");
   my $jobname = $job->name;
   my $joburl = $job->results_url;
   my $passwd = $q->param('passwd');
@@ -623,8 +626,6 @@ sub drawCanvas {
     $return .= "<script> window.addEventListener('load', jsoutput_$num, false); </script>";
     return $return;
 }
-
-
 
 
 1;
