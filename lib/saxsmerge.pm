@@ -52,7 +52,7 @@ sub get_help_page {
   } else {
     $file = "help.txt";
   }
-  return $self->cgi->script({src=>"html/saxsmerge.js"},"google_tracker();").$self->get_text_file($file);
+  return $self->google_tracker() . $self->get_text_file($file);
 }
 
 sub new {
@@ -172,7 +172,7 @@ sub get_index_page {
 
   my $input_form = get_input_form($self, $q);
 
-  return $q->script("google_tracker();")."$input_form\n";
+  return $self->google_tracker() . "$input_form\n";
 
 }
 
@@ -337,7 +337,7 @@ sub get_submit_page {
     #                    . $job->results_url . "\">this link</a>.");
     $retval .= $q->p("You will receive an e-mail with results link "
                      ."once the job has finished");
-    $retval .= $q->script({src=>"html/saxsmerge.js"},"google_tracker();");
+    $retval .= $self->google_tracker();
     return $retval;
 }
 
@@ -345,12 +345,12 @@ sub get_results_page {
   my ($self, $job) = @_;
   my $q = $self->cgi;
 
-  my $return = $q->script({src=>"html/saxsmerge.js"},"google_tracker();");
+  my $return = $self->google_tracker();
   my $jobname = $job->name;
   my $joburl = $job->results_url;
   my $passwd = $q->param('passwd');
 
-  if(not (-f 'summary.txt')) {
+  if (not(-f 'summary.txt')) {
     $return .= $q->p("No output file was produced. Please inspect the log file 
 to determine the problem.");
     $return .= $q->p("<a href=\"" . 
@@ -361,8 +361,7 @@ to determine the problem.");
 
   #output files
   $return .= $q->h1("Results");
-  $return .= $q->h2({id=>"outfiles"},"Output files");
-  $return .= $q->script({src=>"html/saxsmerge.js"},"google_tracker();");
+  $return .= $q->h2("Output files");
   $return .= $q->table(
               $q->Tr($q->td(
             [$q->a({-href=>$job->get_results_file_url('data_merged.dat')},
@@ -378,7 +377,8 @@ to determine the problem.");
       #merge stats
       #$return .= $self->get_merge_stats($job->get_results_file_url('summary.txt'));
       #gnuplots
-      $return .= $self->get_merge_plots();
+      my $mergeplotsrc=$job->get_results_file_url('mergeplots.js');
+      $return .= $self->get_merge_plots($mergeplotsrc);
   }
   return $return;
 }
@@ -386,12 +386,13 @@ to determine the problem.");
 sub get_merge_plots()
 {
   my $self = shift;
+  my $mergeplotsrc=shift;
   my $q = $self->cgi;
 
   my $return = $q->h2("Merge Plots");
   $return .= setupCanvas();
 
-  $return .= $q->script({-src=>'mergeplots.js'},"");
+  $return .= $q->script({-src=>$mergeplotsrc},"");
   #. "<table align='center'><tr><td><div  id=\"wrapper\">
 
   $return .= $q->table(
@@ -665,5 +666,24 @@ sub drawCanvasMerge {
     return $return;
 }
 
+sub google_tracker() {
+return "<script type='text/javascript'>
+
+  var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-39277378-1']);
+      _gaq.push(['_trackPageview']);
+
+(function() {
+var ga = document.createElement('script'); ga.type =
+'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ?
+        'https://ssl' : 'http://www') +
+    '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>"
+}
 
 1;
