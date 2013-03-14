@@ -52,7 +52,7 @@ sub get_help_page {
   } else {
     $file = "help.txt";
   }
-  return $self->cgi->script("google_tracker();").$self->get_text_file($file);
+  return $self->cgi->script({src=>"html/saxsmerge.js"},"google_tracker();").$self->get_text_file($file);
 }
 
 sub new {
@@ -335,7 +335,7 @@ sub get_submit_page {
     #                    . $job->results_url . "\">this link</a>.");
     $retval .= $q->p("You will receive an e-mail with results link "
                      ."once the job has finished");
-    $retval .= $q->script("google_tracker();");
+    $retval .= $q->script({src=>"html/saxsmerge.js"},"google_tracker();");
     return $retval;
 }
 
@@ -343,7 +343,7 @@ sub get_results_page {
   my ($self, $job) = @_;
   my $q = $self->cgi;
 
-  my $return = $q->script("google_tracker();");
+  my $return = $q->script({src=>"html/saxsmerge.js"},"google_tracker();");
   my $jobname = $job->name;
   my $joburl = $job->results_url;
   my $passwd = $q->param('passwd');
@@ -351,14 +351,15 @@ sub get_results_page {
   if(-f 'summary.txt') {
       #output files
     $return .= $q->h1("Output files");
-    $return .= $q->p(
+    $return .= $q->table(
+                $q->Tr($q->td(
               [$q->a({-href=>$job->get_results_file_url('data_merged.dat')},
 	               "Merged data"),
                $q->a({-href=>$job->get_results_file_url('mean_merged.dat')},
 	               "Merged mean"),
                $q->a({-href=>$job->get_results_file_url('summary.txt')},
 	               "Summary file")
-              ]);
+              ])));
 
      #gnuplots
     $return .= $q->h1("Plots");
