@@ -57,7 +57,8 @@ date
         script += 'set log y\n'
         script += 'set xlabel "q"\n'
         script += 'set ylabel "log I(q)"\n'
-        script += 'p "%s" u 1:2:3 w yerr lt 1 t "data", ' % datafile
+        script += 'p "%s" u 1:2 w p lt 1 t "data", ' % datafile
+        script += '"%s" u 1:2:3 w yerr lt 1 t "data", ' % datafile
         script += '"%s" u 1:2 w l lt 2 t "mean", ' % meanfile
         script += '"%s" u 1:(\$2+\$3) w l lt 3 t "+- SD", ' % meanfile
         script += '"%s" u 1:(\$2-\$3) w l lt 3 not\n' % meanfile
@@ -72,7 +73,8 @@ date
         script += 'set title "merged data linear scale"\n'
         script += 'set xlabel "q"\n'
         script += 'set ylabel "I(q)"\n'
-        script += 'p "%s" u 1:2:3 w yerr lt 1 t "data", ' % datafile
+        script += 'p "%s" u 1:2 w p lt 1 t "data", ' % datafile
+        script += '"%s" u 1:2:3 w yerr lt 1 t "data", ' % datafile
         script += '"%s" u 1:2 w l lt 2 t "mean", ' % meanfile
         script += '"%s" u 1:(\$2+\$3) w l lt 3 t "+- SD", ' % meanfile
         script += '"%s" u 1:(\$2-\$3) w l lt 3 not\n' % meanfile
@@ -87,7 +89,8 @@ date
         script += 'set title "merged data Guinier plot"\n'
         script += 'set xlabel "q^2"\n'
         script += 'set ylabel "log I(q)"\n'
-        script += 'p "%s" u (\$1**2):(log(\$2)):(\$3/\$2) w yerr lt 1 t "data", ' % datafile
+        script += 'p "%s" u (\$1**2):(log(\$2)) w p lt 1 t "data", ' % datafile
+        script += '"%s" u (\$1**2):(log(\$2)):(\$3/\$2) w yerr lt 1 t "data", ' % datafile
         script += '"%s" u (\$1**2):(log(\$2)) w l lt 2 t "mean", ' % meanfile
         script += '"%s" u (\$1**2):(log(\$2)+\$3/\$2) w l lt 3 t "+- SD", ' % meanfile
         script += '"%s" u (\$1**2):(log(\$2)-\$3/\$2) w l lt 3 not\n' % meanfile
@@ -102,20 +105,63 @@ date
         script += 'set title "merged data Kratky plot"\n'
         script += 'set xlabel "q"\n'
         script += 'set ylabel "q^2 I(q)"\n'
-        script += 'p "%s" u 1:(\$1**2*\$2):(\$1**2*\$3) w yerr lt 1 t "data", ' % datafile
+        script += 'p "%s" u 1:(\$1**2*\$2) w p lt 1 t "data", ' % datafile
+        script += '"%s" u 1:(\$1**2*\$2):(\$1**2*\$3) w yerr lt 1 t "data", ' % datafile
         script += '"%s" u 1:(\$1**2*\$2) w l lt 2 t "mean", ' % meanfile
         script += '"%s" u 1:(\$1**2*(\$2+\$3)) w l lt 3 t "+- SD", ' % meanfile
         script += '"%s" u 1:(\$1**2*(\$2-\$3)) w l lt 3 not\n' % meanfile
         return script
 
+    def plot_log_scale_colored(self,outfile):
+        datafile = "data_merged.dat"
+        script="reset\n"
+        script += 'set terminal canvas solid butt size 400,350 fsize 10 '
+        script += 'lw 1.5 fontscale 1 name "%s" jsdir "."\n' % outfile
+        script += 'set title "merged data colored by inputs"\n'
+        script += 'set log y\n'
+        script += 'set xlabel "q"\n'
+        script += 'set ylabel "log I(q)"\n'
+        script += 'p "%s" u 1:2:4 w p lc var t "data"\n' % datafile
+        return script
+
+    def plot_lin_scale_colored(self,outfile):
+        datafile = "data_merged.dat"
+        script="reset\n"
+        script += 'set terminal canvas solid butt size 400,350 fsize 10 '
+        script += 'lw 1.5 fontscale 1 name "%s" jsdir "."\n' % outfile
+        script += 'set title "merged data colored by inputs"\n'
+        script += 'set xlabel "q"\n'
+        script += 'set ylabel "I(q)"\n'
+        script += 'p "%s" u 1:2:4 w p lc var t "data"\n' % datafile
+        return script
+
     def gen_gnuplots(self):
-        outfile = "mergeplots"
         script=""
-        script += 'set output "%s.js"\n' % outfile
-        script += self.plot_log_scale(outfile+'_1')
-        script += self.plot_lin_scale(outfile+'_2')
-        script += self.plot_guinier(outfile+'_3')
-        script += self.plot_kratky(outfile+'_4')
+        infile = open('input.txt').readlines()
+        hasmerge = '--stop=merging\n' in infile
+        haslongtable = not ('--outlevel=sparse\n' in infile)
+        hasinputs = '--allfiles\n' in infile
+        #merge-related plots
+        if hasmerge:
+            outfile = "mergeplots"
+            script += 'set output "%s.js"\n' % outfile
+            script += self.plot_log_scale(outfile+'_1')
+            script += self.plot_lin_scale(outfile+'_2')
+            script += self.plot_guinier(outfile+'_3')
+            script += self.plot_kratky(outfile+'_4')
+        #merge/input related plots
+        if hasmerge and haslongtable:
+            outfile = "mergeinplots"
+            script += 'set output "%s.js"\n' % outfile
+            script += self.plot_log_scale_colored(outfile+'_1')
+            script += self.plot_lin_scale_colored(outfile+'_2')
+        if hasinputs:
+            outfile = "inputplots"
+            script += 'set output "%s.js"\n' % outfile
+            script += self.plot_inputs_log_scale(outfile+'_1')
+            script += self.plot_inputs_lin_scale(outfile+'_2')
+            script += self.plot_inputs_guinier(outfile+'_3')
+            script += self.plot_inputs_kratky(outfile+'_4')
         return script
 
 def get_web_service(config_file):

@@ -372,6 +372,7 @@ to determine the problem.");
                      "Summary file")
             ])));
 
+  $return .= setupCanvas();
   if (-f 'mergeplots.js')
   {
       #merge stats
@@ -380,30 +381,12 @@ to determine the problem.");
       my $mergeplotsrc=$job->get_results_file_url('mergeplots.js');
       $return .= $self->get_merge_plots($mergeplotsrc);
   }
-  return $return;
-}
 
-sub get_merge_plots()
-{
-  my $self = shift;
-  my $mergeplotsrc=shift;
-  my $q = $self->cgi;
-
-  my $return = $q->h2("Merge Plots");
-  $return .= setupCanvas();
-
-  $return .= $q->script({-src=>$mergeplotsrc},"");
-  #. "<table align='center'><tr><td><div  id=\"wrapper\">
-
-  $return .= $q->table(
-      $q->Tr({align=>'LEFT', valign=>'TOP'},
-          [$q->th(["Log scale", "Linear scale"]),
-          $q->td([drawCanvasMerge($q,1), drawCanvasMerge($q,2)]),
-          $q->th(["Guinier plot", "Kratky plot"]),
-          $q->td([drawCanvasMerge($q,3), drawCanvasMerge($q,4)])]
-  )
-  );
-
+  if (-f 'mergeinplots.js')
+  {
+      my $mergeplotsrc=$job->get_results_file_url('mergeinplots.js');
+      $return .= $self->get_merge_color_plots($mergeplotsrc);
+  }
   return $return;
 }
 
@@ -639,6 +622,29 @@ function gnuplot_canvas( plot ) { gnuplot.active_plot(); };
 </script>\n";
 }
 
+sub get_merge_plots()
+{
+  my $self = shift;
+  my $mergeplotsrc=shift;
+  my $q = $self->cgi;
+
+  my $return = $q->h2("Merge Plots");
+
+  $return .= $q->script({-src=>$mergeplotsrc},"");
+  #. "<table align='center'><tr><td><div  id=\"wrapper\">
+
+  $return .= $q->table(
+      $q->Tr({align=>'LEFT', valign=>'TOP'},
+          [$q->th(["Log scale", "Linear scale"]),
+          $q->td([drawCanvasMerge($q,1), drawCanvasMerge($q,2)]),
+          $q->th(["Guinier plot", "Kratky plot"]),
+          $q->td([drawCanvasMerge($q,3), drawCanvasMerge($q,4)])]
+  )
+  );
+
+  return $return;
+}
+
 sub drawCanvasMerge {
     my $q = shift;
     my $num = shift;
@@ -655,14 +661,56 @@ sub drawCanvasMerge {
                         onclick=>'gnuplot.unzoom();'}),
              $q->checkbox(-id=>"data".$num, -label=>"data", -checked=>1,
                             -onclick=>"gnuplot.toggle_plot('mergeplots_"."$num"."_plot_1');"),
-             $q->checkbox(-id=>"mean".$num, -label=>"mean", -checked=>1,
+             $q->checkbox(-id=>"derr".$num, -label=>"data error", -checked=>1,
                             -onclick=>"gnuplot.toggle_plot('mergeplots_"."$num"."_plot_2');"),
+             $q->checkbox(-id=>"mean".$num, -label=>"mean", -checked=>1,
+                            -onclick=>"gnuplot.toggle_plot('mergeplots_"."$num"."_plot_3');"),
              $q->checkbox(-id=>"SD".$num, -label=>"SD", -checked=>1,
-                          -onclick=>"gnuplot.toggle_plot('mergeplots_"."$num"."_plot_3');
-                                     gnuplot.toggle_plot('mergeplots_"."$num"."_plot_4');")
+                          -onclick=>"gnuplot.toggle_plot('mergeplots_"."$num"."_plot_4');
+                                     gnuplot.toggle_plot('mergeplots_"."$num"."_plot_5');")
            ])));
     $return .=
     $q->script("window.addEventListener('load', mergeplots_$num, false);");
+    return $return;
+}
+
+
+sub get_merge_color_plots()
+{
+  my $self = shift;
+  my $mergeplotsrc=shift;
+  my $q = $self->cgi;
+
+  my $return = $q->h2("Input colored Merge Plots");
+
+  $return .= $q->script({-src=>$mergeplotsrc},"");
+  #. "<table align='center'><tr><td><div  id=\"wrapper\">
+
+  $return .= $q->table(
+      $q->Tr({align=>'LEFT', valign=>'TOP'},
+          [$q->th(["Log scale", "Linear scale"]),
+          $q->td([drawCanvasMergeColor($q,1), drawCanvasMergeColor($q,2)])]
+  )
+  );
+
+  return $return;
+}
+
+sub drawCanvasMergeColor {
+    my $q = shift;
+    my $num = shift;
+    my $return="";
+    #canvas
+    $return .= "
+        <canvas id='mergeinplots_$num' width=400 height=350 tabindex='0' oncontextmenu='return false;'>
+            <div class='box'><h2>Your browser does not support the HTML 5 canvas element</h2></div>
+        </canvas>";
+    #buttons
+    $return .= $q->table($q->Tr($q->td(
+             $q->input({type=>'button', id=>'minus'.$num, value=>'reset',
+                        onclick=>'gnuplot.unzoom();'}))));
+    $return .=
+    $q->script("window.addEventListener('load', mergeinplots_$num, false);");
     return $return;
 }
 
