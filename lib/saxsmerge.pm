@@ -395,13 +395,13 @@ sub get_advanced_options {
             $q->th("General")
             ,$q->td([
                 'First line of output files is a header'
-                ,$q->input({-type=>'checkbox',
-                            -name=>"gen_header"})
+                ,$q->checkbox(-name=>"gen_header",
+                              -label=>"")
                 ])
             ,$q->td([
                 'Output data files for parsed input files as well'
-                ,$q->input({-type=>'checkbox',
-                            -name=>"gen_input"})
+                ,$q->checkbox(-label=>"",
+                            -name=>"gen_input")
                 ])
             ,$q->td([
                 'Output level'
@@ -434,14 +434,14 @@ sub get_advanced_options {
                 ])
             ,$q->td([
                 'Model comparison'
-                ,$q->input({-type=>'checkbox',
-                            -checked=>"checked"
-                            -name=>"fit_comp"})
+                ,$q->checkbox(-label=>"",
+                            -checked=>1,
+                            -name=>"fit_comp")
                 ])
             ,$q->td([
                 'Always compute error bars'
-                ,$q->input({-type=>'checkbox',
-                            -name=>"fit_bars"})
+                ,$q->checkbox(-label=>"",
+                            -name=>"fit_bars")
                 ])
             ]))
         #rescaling
@@ -476,19 +476,19 @@ sub get_advanced_options {
                 ])
             ,$q->td([
                 'Model comparison'
-                ,$q->input({-type=>'checkbox',
-                            -checked=>"checked"
-                            -name=>"merge_comp"})
+                ,$q->checkbox(-label=>"",
+                            -checked=>1,
+                            -name=>"merge_comp")
                 ])
             ,$q->td([
                 'Always compute error bars'
-                ,$q->input({-type=>'checkbox',
-                            -name=>"merge_bars"})
+                ,$q->checkbox(-label=>"",
+                            -name=>"merge_bars")
                 ])
             ,$q->td([
                 "Don't extrapolate at all, even at low angle"
-                ,$q->input({-type=>'checkbox',
-                            -name=>"merge_noextrapol"})
+                ,$q->checkbox(-label=>"",
+                            -name=>"merge_noextrapol")
                 ])
             ]))
         );
@@ -504,9 +504,9 @@ sub get_expert_options {
             $q->th("General")
             ,$q->td([
                 'Take q values from first input file',
-                ,$q->input({-type=>'checkbox',
+                ,$q->checkbox(-label=>"",
                             -name=>"gen_npoints_input",
--onchange=>"document.getElementById('gen_npoints_val').disabled=this.checked;"})
+-onchange=>"document.getElementById('gen_npoints_val').disabled=this.checked;")
                 ])
             ,$q->td([
                 'Number of evenly spaced q values to return for the mean',
@@ -533,8 +533,8 @@ sub get_expert_options {
             $q->th("Fitting (Step 2)")
             ,$q->td([
                 'Average over parameters instead of taking most probable set'
-                ,$q->input({-type=>'checkbox',
-                            -name=>"fit_avg"})
+                ,$q->checkbox(-label=>"",
+                            -name=>"fit_avg")
                 ])
             ,$q->td([
                 'Initial value for d',
@@ -567,8 +567,8 @@ sub get_expert_options {
             $q->th("Merging (Step 5)")
             ,$q->td([
                 'Average over parameters instead of taking most probable set'
-                ,$q->input({-type=>'checkbox',
-                            -name=>"merge_avg"})
+                ,$q->checkbox(-label=>"",
+                            -name=>"merge_avg")
                 ])
             ,$q->td([
                 "Extrapolate NUM percent outside of the curve's bounds"
