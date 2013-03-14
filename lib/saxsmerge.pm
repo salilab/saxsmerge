@@ -94,7 +94,7 @@ sub get_header {
   return "<div id='header1'>
   <table> <tbody> <tr> <td halign='left'>
   <table><tr><td><img src=\"http://salilab.org/saxsmerge/logo.png\" align = 'right' height = '80'></td></tr>
-         <tr><td><h3>SAXS Merge</h3> </td></tr></table>
+         <tr><td><h1>SAXS Merge</h1> </td></tr></table>
       </td> <td halign='right'><img src=\"http://salilab.org/saxsmerge/logo2.gif\" height = '80'></td></tr>
   </tbody>
   </table></div>\n";
@@ -148,7 +148,8 @@ sub get_input_form {
                   $q->Tr($q->td($q->button(-value=>'Add more profiles',
                                        -onClick=>"add_profile()"))),
                   $q->Tr( $q->td($q->input({-type=>"submit", -value=>"Submit"})),
-                        $q->td($q->input({-type=>"reset", -value=>"Clear"}))
+                        $q->td($q->input({-type=>"reset",
+                                          -value=>"Reset to defaults"}))
                        )
                    );
 
@@ -222,8 +223,8 @@ sub get_submit_page {
 
     #advanced options
     #general
-    if (defined $q->param("gen_header")) {print DATAFILE "--header\n";}
-    if (defined $q->param("gen_input")) {print DATAFILE "--allfiles\n";}
+    if ($q->param("gen_header")) {print DATAFILE "--header\n";}
+    if ($q->param("gen_input")) {print DATAFILE "--allfiles\n";}
     print DATAFILE "--outlevel=".$q->param("gen_output")."\n";
 
     #cleanup
@@ -232,23 +233,94 @@ sub get_submit_page {
 
     #fitting
     print DATAFILE "--bmean=".$q->param("fit_param")."\n";
-    if (not defined $q->param("fit_comp")) {print DATAFILE "--bnocomp\n";}
-    if (defined $q->param("fit_bars")) {print DATAFILE "--berror\n";}
+    if (not $q->param("fit_comp")) {print DATAFILE "--bnocomp\n";}
+    if ($q->param("fit_bars")) {print DATAFILE "--berror\n";}
 
     #rescaling
     print DATAFILE "--cmodel=".$q->param("res_model")."\n";
 
     #classification
     if (looks_like_number($q->param("class_alpha")))
-        { print DATAFILE "--dalpha=".$q->param("class_alpha")."\n"; }
+    { 
+        print DATAFILE "--dalpha=".$q->param("class_alpha")."\n";
+    } else {
+        throw saliweb::frontend::InputValidationError(
+            "Advanced: classification: alpha is invalid number");
+    }
+
 
     #merging
     print DATAFILE "--emean=".$q->param("merge_param")."\n";
-    if (not defined $q->param("merge_comp"))
+    if (not $q->param("merge_comp"))
         {print DATAFILE "--enocomp\n";}
-    if (defined $q->param("merge_bars")) {print DATAFILE "--eerror\n";}
-    if (defined $q->param("merge_noextrapol"))
+    if ($q->param("merge_bars")) {print DATAFILE "--eerror\n";}
+    if ($q->param("merge_noextrapol"))
         {print DATAFILE "--enoextrapolate\n";}
+
+
+    #expert options
+    #general
+    if ($q->param("gen_npoints_input"))
+    {
+        print DATAFILE "--npoints=-1\n";
+    } else {
+        my $qnum = $q->param("gen_npoints_val");
+        if (not (looks_like_number($qnum) and $qnum >0))
+        {
+            throw saliweb::frontend::InputValidationError(
+                "Expert: general: q values not a positive number");
+        }
+        print DATAFILE "--npoints=$qnum\n";
+    }
+    my $lambdamin = $q->param("gen_lambdamin");
+    if ( not (looks_like_number($lambdamin) and $lambdamin>0))
+    { 
+        throw saliweb::frontend::InputValidationError(
+            "Expert: general: lambda minimum is invalid positive float");
+    }
+    print DATAFILE "--lambdamin=$lambdamin\n";
+    #cleanup
+    my $qcut = $q->param("clean_cut");
+    if ( not (looks_like_number($qcut) and $qcut>0))
+    { 
+        throw saliweb::frontend::InputValidationError(
+            "Expert: cleanup: q cutoff is invalid positive float");
+    }
+    print DATAFILE "--acutoff=$qcut\n";
+    #fitting
+    if ($q->param("fit_avg")) {print DATAFILE "--baverage\n";}
+    my $dstart = $q->param("fit_d");
+    if ( not (looks_like_number($dstart) and $dstart>=0))
+    { 
+        throw saliweb::frontend::InputValidationError(
+            "Expert: fitting: d initial value is invalid positive float");
+    }
+    print DATAFILE "--bd=$dstart\n";
+    my $sstart = $q->param("fit_s");
+    if ( not (looks_like_number($sstart) and $sstart>=0.0))
+    { 
+        throw saliweb::frontend::InputValidationError(
+            "Expert: fitting: s initial value is invalid positive float");
+    }
+    print DATAFILE "--bs=$sstart\n";
+    #rescaling
+    print DATAFILE "--creference=".$q->param("res_ref")."\n";
+    my $ngamma = $q->param("res_npoints");
+    if ( not (looks_like_number($ngamma) and $ngamma>0))
+    { 
+        throw saliweb::frontend::InputValidationError(
+            "Expert: rescaling: number of gamma points must be >0");
+    }
+    print DATAFILE "--cnpoints=$ngamma\n";
+    #merging
+    if ($q->param("merge_avg")) {print DATAFILE "--eaverage\n";}
+    my $nextrapol = $q->param("merge_extrapol");
+    if ( not (looks_like_number($nextrapol) and $nextrapol>=0))
+    { 
+        throw saliweb::frontend::InputValidationError(
+            "Expert: merging: percentage must be positive");
+    }
+    print DATAFILE "--eextrapolate=$nextrapol\n";
 
     close(DATAFILE);
 
@@ -350,7 +422,7 @@ sub get_advanced_options {
         ,$q->tbody($q->Tr([
             $q->th("Fitting (Step 2)")
             ,$q->td([
-                'Parameter set',
+                'Parameter set'
                 ,$q->popup_menu(-name=>"fit_param",
                                 -Values=>['Flat','Simple','Generalized','Full'],
                                 -default=>'Full',
@@ -358,13 +430,13 @@ sub get_advanced_options {
                 ,$q->p({id=>"fit_param_text"})
                 ])
             ,$q->td([
-                'Model comparison',
+                'Model comparison'
                 ,$q->input({-type=>'checkbox',
                             -checked=>"checked"
                             -name=>"fit_comp"})
                 ])
             ,$q->td([
-                'Always compute error bars',
+                'Always compute error bars'
                 ,$q->input({-type=>'checkbox',
                             -name=>"fit_bars"})
                 ])
@@ -373,7 +445,7 @@ sub get_advanced_options {
         ,$q->tbody($q->Tr([
             $q->th("Rescaling (Step 3)")
             ,$q->td([
-                'Model',
+                'Model'
                 ,$q->popup_menu(-name=>"res_model",
                                 -Values=>['normal','normal-offset','lognormal'],
                                 -default=>'normal'),
@@ -383,7 +455,7 @@ sub get_advanced_options {
         ,$q->tbody($q->Tr([
             $q->th("Classification (Step 4)")
             ,$q->td([
-                'Type I error',
+                'Type I error'
                 ,$q->textfield({name=>'class_alpha',value=>0.05,
                                size=>"5"})
                 ])
@@ -392,7 +464,7 @@ sub get_advanced_options {
         ,$q->tbody($q->Tr([
             $q->th("Merging (Step 5)")
             ,$q->td([
-                'Parameter set',
+                'Parameter set'
                 ,$q->popup_menu(-name=>"merge_param",
                                 -Values=>['Flat','Simple','Generalized','Full'],
                                 -default=>'Full',
@@ -400,18 +472,18 @@ sub get_advanced_options {
                 ,$q->p({id=>"merge_param_text"})
                 ])
             ,$q->td([
-                'Model comparison',
+                'Model comparison'
                 ,$q->input({-type=>'checkbox',
                             -checked=>"checked"
                             -name=>"merge_comp"})
                 ])
             ,$q->td([
-                'Always compute error bars',
+                'Always compute error bars'
                 ,$q->input({-type=>'checkbox',
                             -name=>"merge_bars"})
                 ])
             ,$q->td([
-                "Don't extrapolate at all, even at low angle",
+                "Don't extrapolate at all, even at low angle"
                 ,$q->input({-type=>'checkbox',
                             -name=>"merge_noextrapol"})
                 ])
@@ -440,7 +512,7 @@ sub get_expert_options {
                 ])
             ,$q->td([
                 'Lower bound for lambda in steps 2 and 5'
-                ,$q->textfield({name=>'gen_npoints_val',
+                ,$q->textfield({name=>'gen_lambdamin',
                         value=>0.005, size=>"5"})
                 ])
             ]))
@@ -453,7 +525,55 @@ sub get_expert_options {
                                size=>"5"})
                 ])
             ]))
-        );
+        #fitting
+        ,$q->tbody($q->Tr([
+            $q->th("Fitting (Step 2)")
+            ,$q->td([
+                'Average over parameters instead of taking most probable set'
+                ,$q->input({-type=>'checkbox',
+                            -name=>"fit_avg"})
+                ])
+            ,$q->td([
+                'Initial value for d',
+                ,$q->textfield({name=>'fit_d',value=>4.0,
+                               size=>"5"})
+                ])
+            ,$q->td([
+                'Initial value for s',
+                ,$q->textfield({name=>'fit_s',value=>0.0,
+                               size=>"5"})
+                ])
+            ]))
+        #Rescaling
+        ,$q->tbody($q->Tr([
+            $q->th("Rescaling (Step 3)")
+            ,$q->td([
+                'Which input curve to rescale the others to'
+                ,$q->popup_menu(-name=>"res_ref",
+                                -Values=>['first','last'],
+                                -default=>'last')
+                ])
+            ,$q->td([
+                'Number of points to use to compute gamma'
+                ,$q->textfield({name=>'res_npoints',value=>200,
+                               size=>"5"})
+                ])
+            ]))
+        #Merging
+        ,$q->tbody($q->Tr([
+            $q->th("Merging (Step 5)")
+            ,$q->td([
+                'Average over parameters instead of taking most probable set'
+                ,$q->input({-type=>'checkbox',
+                            -name=>"merge_avg"})
+                ])
+            ,$q->td([
+                "Extrapolate NUM percent outside of the curve's bounds"
+                ,$q->textfield({name=>'merge_extrapol',value=>0,
+                               size=>"5"})
+                ])
+            ]))
+    );
 
     return $self->make_dropdown("expert", "Show/Hide", 0, $return);
 }
