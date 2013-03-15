@@ -50,7 +50,7 @@ sub get_help_page {
   } else {
     $file = "help.txt";
   }
-  return $self->google_tracker() . $self->get_text_file($file);
+  return $self->google_tracker() . "<div id=\"fullpart\">".$self->get_text_file($file)."</div>";
 }
 
 sub new {
@@ -155,7 +155,7 @@ sub get_index_page {
 
   my $input_form = get_input_form($self, $q);
 
-  return $self->google_tracker() . "$input_form\n";
+  return $self->google_tracker() . "<div id=\"fullpart\">$input_form</div>\n";
 
 }
 
