@@ -124,7 +124,7 @@ date
         script += 'set log y\n'
         script += 'set xlabel "q"\n'
         script += 'set ylabel "log I(q)"\n'
-        script += 'p "%s" u 1:2:(1+\$4) w p lc var t "data"\n' % datafile
+        script += 'p "%s" u 1:2:(1+\$4) w p lc var not\n' % datafile
         return script
 
     def plot_lin_scale_colored(self,outfile):
@@ -135,7 +135,7 @@ date
         script += 'set title "merged data colored by inputs"\n'
         script += 'set xlabel "q"\n'
         script += 'set ylabel "I(q)"\n'
-        script += 'p "%s" u 1:2:(1+\$4) w p lc var t "data"\n' % datafile
+        script += 'p "%s" u 1:2:(1+\$4) w p lc var not\n' % datafile
         return script
     
     def plot_inputs_log_scale(self,outfile,infiles):

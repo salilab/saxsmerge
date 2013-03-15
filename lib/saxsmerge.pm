@@ -7,9 +7,9 @@ sub get_start_html_parameters {
   my ($self, $style) = @_;
   my %param = $self->SUPER::get_start_html_parameters($style);
   push @{$param{-script}}, {-language => 'JavaScript',
-                            -src => 'html/jquery-1.8.1.min.js' };
+                            -src => 'http://modbase.compbio.ucsf.edu/saxsmerge/html/jquery-1.8.1.min.js' };
   push @{$param{-script}}, {-language => 'JavaScript',
-                            -src => 'html/saxsmerge.js' };
+                            -src => 'http://modbase.compbio.ucsf.edu/saxsmerge/html/saxsmerge.js' };
   #push @{$param{-style}->{'-src'}}, 'html/saxsmerge.css';
   return %param;
 }
@@ -346,7 +346,7 @@ to determine the problem.");
   }
 
   #output files
-  $return .= $q->h4("Output files");
+  $return .= $q->h4("Output Files");
   $return .= $q->table(
               $q->Tr($q->td(
             [$q->a({-href=>$job->get_results_file_url('data_merged.dat')},
@@ -366,7 +366,7 @@ to determine the problem.");
       #$return .= $self->get_merge_stats($job->get_results_file_url('summary.txt'));
       #gnuplots
       my $mergeplotsrc=$job->get_results_file_url('mergeplots.js');
-      $return .=  $self->make_dropdown("mergeplots_dd",
+      $return .=  $self->make_dropdown("mergeplotsdd",
                   $q->h4("Merge Plots"), 1,
                   $self->get_merge_plots($mergeplotsrc));
   }
@@ -374,16 +374,16 @@ to determine the problem.");
   if (-f 'mergeinplots.js')
   {
       my $mergeplotsrc=$job->get_results_file_url('mergeinplots.js');
-      $return .=  $self->make_dropdown("mergeinplots_dd",
-                  $q->h4("Input colored Merge Plots"), 1,
+      $return .=  $self->make_dropdown("mergeinplotsdd",
+                  $q->h4("Input Colored Merge Plots"), 0,
                   $self->get_merge_color_plots($mergeplotsrc));
   }
   
   if (-f 'inputplots.js')
   {
       my $inplotsrc=$job->get_results_file_url('inputplots.js');
-      $return .=  $self->make_dropdown("inputplots_dd",
-                  $q->h4("Input Plots"), 1,
+      $return .=  $self->make_dropdown("inputplotsdd",
+                  $q->h4("Input Plots"), 0,
                   $self->get_input_plots($inplotsrc));
   }
   return $return;
@@ -679,15 +679,15 @@ sub drawCanvasMerge {
     #buttons
     $return .= $q->table($q->Tr($q->td(
            [
-             $q->input({type=>'button', id=>'minus'.$num, value=>'reset',
+             $q->input({type=>'button', id=>'minus_m_'.$num, value=>'reset',
                         onclick=>'gnuplot.unzoom();'}),
-             $q->checkbox(-id=>"data".$num, -label=>"data", -checked=>1,
+             $q->checkbox(-id=>"data_m_".$num, -label=>"data", -checked=>1,
                             -onclick=>"gnuplot.toggle_plot('mergeplots_"."$num"."_plot_1');"),
-             $q->checkbox(-id=>"derr".$num, -label=>"data error", -checked=>1,
+             $q->checkbox(-id=>"derr_m_".$num, -label=>"data error", -checked=>1,
                             -onclick=>"gnuplot.toggle_plot('mergeplots_"."$num"."_plot_2');"),
-             $q->checkbox(-id=>"mean".$num, -label=>"mean", -checked=>1,
+             $q->checkbox(-id=>"mean_m_".$num, -label=>"mean", -checked=>1,
                             -onclick=>"gnuplot.toggle_plot('mergeplots_"."$num"."_plot_3');"),
-             $q->checkbox(-id=>"SD".$num, -label=>"SD", -checked=>1,
+             $q->checkbox(-id=>"SD_m_".$num, -label=>"SD", -checked=>1,
                           -onclick=>"gnuplot.toggle_plot('mergeplots_"."$num"."_plot_4');
                                      gnuplot.toggle_plot('mergeplots_"."$num"."_plot_5');")
            ])));
@@ -729,7 +729,7 @@ sub drawCanvasInputs {
     #buttons
     $return .= $q->table($q->Tr($q->td(
            [
-             $q->input({type=>'button', id=>'minus'.$num, value=>'reset',
+             $q->input({type=>'button', id=>'minus_i_'.$num, value=>'reset',
                         onclick=>'gnuplot.unzoom();'}),
              $q->checkbox(-id=>"data".$num, -label=>"data", -checked=>1,
                             -onclick=>"gnuplot.toggle_plot('inputplots_"."$num"."_plot_1');"),
@@ -777,7 +777,7 @@ sub drawCanvasMergeColor {
         </canvas>";
     #buttons
     $return .= $q->table($q->Tr($q->td(
-             $q->input({type=>'button', id=>'minus'.$num, value=>'reset',
+             $q->input({type=>'button', id=>'minus_mi_'.$num, value=>'reset',
                         onclick=>'gnuplot.unzoom();'}))));
     $return .=
     $q->script("window.addEventListener('load', mergeinplots_$num, false);");
