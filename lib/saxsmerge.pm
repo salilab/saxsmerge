@@ -730,19 +730,30 @@ sub drawCanvasInputs {
     $return .= $q->table($q->Tr($q->td(
            [
              $q->input({type=>'button', id=>'minus_i_'.$num, value=>'reset',
-                        onclick=>'gnuplot.unzoom();'}),
-             $q->checkbox(-id=>"data".$num, -label=>"data", -checked=>1,
-                            -onclick=>"gnuplot.toggle_plot('inputplots_"."$num"."_plot_1');"),
-             $q->checkbox(-id=>"derr".$num, -label=>"data error", -checked=>1,
-                            -onclick=>"gnuplot.toggle_plot('inputplots_"."$num"."_plot_2');"),
-             $q->checkbox(-id=>"mean".$num, -label=>"mean", -checked=>1,
-                            -onclick=>"gnuplot.toggle_plot('inputplots_"."$num"."_plot_3');"),
-             $q->checkbox(-id=>"SD".$num, -label=>"SD", -checked=>1,
-                          -onclick=>"gnuplot.toggle_plot('inputplots_"."$num"."_plot_4');
-                                     gnuplot.toggle_plot('inputplots_"."$num"."_plot_5');")
-           ])));
-    $return .=
-    $q->script("window.addEventListener('load', inputplots_$num, false);");
+                        onclick=>'gnuplot.unzoom();'})])));
+    $return .= "\n<table>\n";
+    $return .= $q->Tr($q->td(["input file","data","error","mean","SD"]));
+    open(FILE, 'input.txt');
+    my $nfiles=0;
+    while(<FILE>) {
+        $nfiles++; 
+        /(.+)=\d+/;
+        $return .= $q->Tr($q->td(
+             [$1,
+             $q->checkbox(-id=>"data".$nfiles."_".$num, -label=>"", -checked=>1,
+                            -onclick=>"gnuplot.toggle_plot('inputplots_"."$num"."_plot_".(5*$nfiles-4)."');"),
+             $q->checkbox(-id=>"derr".$nfiles."_".$num, -label=>"", -checked=>1,
+                            -onclick=>"gnuplot.toggle_plot('inputplots_"."$num"."_plot_".(5*$nfiles-3)."');"),
+             $q->checkbox(-id=>"mean".$nfiles."_".$num, -label=>"", -checked=>1,
+                            -onclick=>"gnuplot.toggle_plot('inputplots_"."$num"."_plot_".(5*$nfiles-2)."');"),
+             $q->checkbox(-id=>"SD".$nfiles."_".$num, -label=>"", -checked=>1,
+                            -onclick=>"gnuplot.toggle_plot('inputplots_"."$num"."_plot_".(5*$nfiles-1)."');
+                                       gnuplot.toggle_plot('inputplots_"."$num"."_plot_".(5*$nfiles)."');")
+            ]));
+        last if (/^--.+/);
+    }
+    $return .= "\n</table>\n";
+    $return .= $q->script("window.addEventListener('load', inputplots_$num, false);");
     return $return;
 }
 
