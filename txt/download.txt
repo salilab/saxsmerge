@@ -1,4 +1,4 @@
 <h1>Download</h1>
 SAXS Merge can be downloaded as a standalone application from the
-<a href=http://www.integrativemodeling.org/download.html#nightly>IMP nightly
-builds</a>
+<a href=http://www.integrativemodeling.org/download.html#nightly
+target="_blank">IMP nightly builds</a>
