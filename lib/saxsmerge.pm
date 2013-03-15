@@ -371,7 +371,9 @@ to determine the problem.");
              $q->a({-href=>$job->get_results_file_url('mean_merged.dat')},
                      "Merged mean"),
              $q->a({-href=>$job->get_results_file_url('summary.txt')},
-                     "Summary file")
+                     "Summary file"),
+             $q->a({-href=>$job->get_results_file_url('saxsmerge.zip')},
+                     "All files")
             ])));
 
   $return .= setupCanvas();
@@ -388,6 +390,12 @@ to determine the problem.");
   {
       my $mergeplotsrc=$job->get_results_file_url('mergeinplots.js');
       $return .= $self->get_merge_color_plots($mergeplotsrc);
+  }
+  
+  if (-f 'inputplots.js')
+  {
+      my $inplotsrc=$job->get_results_file_url('inputplots.js');
+      $return .= $self->get_input_plots($inplotsrc);
   }
   return $return;
 }
@@ -673,6 +681,59 @@ sub drawCanvasMerge {
            ])));
     $return .=
     $q->script("window.addEventListener('load', mergeplots_$num, false);");
+    return $return;
+}
+
+
+sub get_input_plots()
+{
+  my $self = shift;
+  my $inputsplotsrc=shift;
+  my $q = $self->cgi;
+
+  my $return = $q->h2("Input Plots");
+
+  $return .= $q->script({-src=>$inputsplotsrc},"");
+  #. "<table align='center'><tr><td><div  id=\"wrapper\">
+
+  $return .= $q->table(
+      $q->Tr({align=>'LEFT', valign=>'TOP'},
+          [$q->th(["Log scale", "Linear scale"]),
+          $q->td([drawCanvasInputs($q,1), drawCanvasInputs($q,2)]),
+          $q->th(["Guinier plot", "Kratky plot"]),
+          $q->td([drawCanvasInputs($q,3), drawCanvasInputs($q,4)])]
+  )
+  );
+
+  return $return;
+}
+
+sub drawCanvasInputs {
+    my $q = shift;
+    my $num = shift;
+    my $return="";
+    #canvas
+    $return .= "
+        <canvas id='inputplots_$num' width=400 height=350 tabindex='0' oncontextmenu='return false;'>
+            <div class='box'><h2>Your browser does not support the HTML 5 canvas element</h2></div>
+        </canvas>";
+    #buttons
+    $return .= $q->table($q->Tr($q->td(
+           [
+             $q->input({type=>'button', id=>'minus'.$num, value=>'reset',
+                        onclick=>'gnuplot.unzoom();'}),
+             $q->checkbox(-id=>"data".$num, -label=>"data", -checked=>1,
+                            -onclick=>"gnuplot.toggle_plot('inputplots_"."$num"."_plot_1');"),
+             $q->checkbox(-id=>"derr".$num, -label=>"data error", -checked=>1,
+                            -onclick=>"gnuplot.toggle_plot('inputplots_"."$num"."_plot_2');"),
+             $q->checkbox(-id=>"mean".$num, -label=>"mean", -checked=>1,
+                            -onclick=>"gnuplot.toggle_plot('inputplots_"."$num"."_plot_3');"),
+             $q->checkbox(-id=>"SD".$num, -label=>"SD", -checked=>1,
+                          -onclick=>"gnuplot.toggle_plot('inputplots_"."$num"."_plot_4');
+                                     gnuplot.toggle_plot('inputplots_"."$num"."_plot_5');")
+           ])));
+    $return .=
+    $q->script("window.addEventListener('load', inputplots_$num, false);");
     return $return;
 }
 
