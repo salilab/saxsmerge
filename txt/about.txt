@@ -1,2 +1,7 @@
 <h1>About</h1>
-Hi, this is SJ
+<p>This webserver is introduced in the article</p>
+<p>Yannick G Spill, Seung Joong Kim, Dina Schneidman-Duhovny, Daniel Russel,
+Ben Webb, Andrej Sali, Michael Nilges
+<i>Journal of Applied Crystallography</i>
+Submitted.
+</p>
