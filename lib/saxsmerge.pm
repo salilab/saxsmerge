@@ -201,7 +201,8 @@ sub get_submit_page {
     foreach my $upl (@uplfiles) {      
 	if (defined $upl) {
 	    if(length $upl > 40) { 
-		throw saliweb::frontend::InputValidationError("Please limit the file name length to a maximum of 40 characters");
+		throw saliweb::frontend::InputValidationError(
+                        "Please limit the file name length to a maximum of 40 characters");
 	    }
         my $buffer;
         my $fullpath = $job->directory . "/" . $upl;
@@ -217,7 +218,8 @@ sub get_submit_page {
         $upl_num++;
 	}
     }
-    print $upl_num;
+    if ($upl_num == 0) {throw saliweb::frontend::InputValidationError(
+                        "Please input at least one file!");}
 
     use Scalar::Util qw/looks_like_number/;
 
