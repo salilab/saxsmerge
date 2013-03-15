@@ -1,4 +1,0 @@
-<p>Please address inquiries to:<br />
-<script type="text/javascript">escramble('saxsmerge','salilab.org')</script></p>
-<p> Some stuff! </p>
-
