@@ -1,2 +1,4 @@
 <h1>Download</h1>
-This is SJ
+SAXS Merge can be downloaded as a standalone application from the
+<a href=http://www.integrativemodeling.org/download.html>IMP nightly
+builds</a>
