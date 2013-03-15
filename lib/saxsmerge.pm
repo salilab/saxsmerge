@@ -37,9 +37,7 @@ sub _display_web_page {
 sub get_help_page {
   my ($self, $display_type) = @_;
   my $file;
-  if ($display_type eq "contact") {
-    $file = "contact.txt";
-  } elsif ($display_type eq "news") {
+  if ($display_type eq "news") {
     $file = "news.txt";
   } elsif ($display_type eq "about") {
     $file = "about.txt";

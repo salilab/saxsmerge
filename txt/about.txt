@@ -1,7 +1,9 @@
-<h1>About</h1>
-<p>This webserver is introduced in the article</p>
+<h3>Thank you for using this webserver!</h3>
+<p>If you like it, and use it to merge your data, don't forget to cite</p>
+
 <p>Yannick G Spill, Seung Joong Kim, Dina Schneidman-Duhovny, Daniel Russel,
 Ben Webb, Andrej Sali, Michael Nilges
 <i>Journal of Applied Crystallography</i>
 Submitted.
 </p>
+<h5>Suggestions welcome!</h5>
