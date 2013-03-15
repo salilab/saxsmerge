@@ -131,33 +131,17 @@ sub get_input_form {
   my $q = $self->cgi;
 
   my $form = $q->h4("Required inputs");
-  $form .= $q->table(
-                $q->Tr( $q->td("Email (Required)"),
-                        $q->td($q->textfield({-name=>"jobemail",
-                                              -value=>$self->email,
-                                              -size=>"25"}))
-                       ),
-                $q->Tr($q->td("Number of times each profile has been recorded")
-                       ,$q->td($q->textfield({name=>'recordings',value=>10,
-                                              maxlength=>3,size=>"1"}))
-                      ),
-                $q->tbody({id=>'profiles'}, 
-                  $q->Tr( $q->td("upload SAXS profile "),
-                        $q->td($q->filefield({-name=>'uploaded_file'}))
-                       )),
-                  $q->Tr($q->td($q->button(-value=>'Add more profiles',
-                                       -onClick=>"add_profile()"))),
-                  $q->Tr( $q->td($q->input({-type=>"submit", -value=>"Submit"})),
-                        $q->td($q->input({-type=>"reset",
-                                          -value=>"Reset to defaults"}))
-                       )
-                   );
+  $form .= $self->get_required_inputs();
 
-  $form .= $q->h4("Advanced options");
-  $form .= $self->get_advanced_options();
+  #$form .= $q->h4("Advanced options");
+  $form .=  $self->make_dropdown("advanced", 
+              $q->h4("Advanced options"), 0,
+              $self->get_advanced_options());
   	    
-  $form .= $q->h4("Expert options");
-  $form .= $self->get_expert_options();
+  #$form .= $q->h4("Expert options");
+  $form .=  $self->make_dropdown("expert",
+              $q->h4("Expert options"), 0,
+              $self->get_expert_options());
   	    
   return #$q->h2({-align=>"center"}, "SAXS Merge ...") .
   $q->start_form({-name=>"saxsmerge_form", -method=>"post",
@@ -362,8 +346,7 @@ to determine the problem.");
   }
 
   #output files
-  $return .= $q->h1("Results");
-  $return .= $q->h2("Output files");
+  $return .= $q->h4("Output files");
   $return .= $q->table(
               $q->Tr($q->td(
             [$q->a({-href=>$job->get_results_file_url('data_merged.dat')},
@@ -383,19 +366,25 @@ to determine the problem.");
       #$return .= $self->get_merge_stats($job->get_results_file_url('summary.txt'));
       #gnuplots
       my $mergeplotsrc=$job->get_results_file_url('mergeplots.js');
-      $return .= $self->get_merge_plots($mergeplotsrc);
+      $return .=  $self->make_dropdown("mergeplots_dd",
+                  $q->h4("Merge Plots"), 1,
+                  $self->get_merge_plots($mergeplotsrc));
   }
 
   if (-f 'mergeinplots.js')
   {
       my $mergeplotsrc=$job->get_results_file_url('mergeinplots.js');
-      $return .= $self->get_merge_color_plots($mergeplotsrc);
+      $return .=  $self->make_dropdown("mergeinplots_dd",
+                  $q->h4("Input colored Merge Plots"), 1,
+                  $self->get_merge_color_plots($mergeplotsrc));
   }
   
   if (-f 'inputplots.js')
   {
       my $inplotsrc=$job->get_results_file_url('inputplots.js');
-      $return .= $self->get_input_plots($inplotsrc);
+      $return .=  $self->make_dropdown("inputplots_dd",
+                  $q->h4("Input Plots"), 1,
+                  $self->get_input_plots($inplotsrc));
   }
   return $return;
 }
@@ -406,9 +395,40 @@ sub get_merge_stats {
     #parse summary.txt file's merge section
     open(FILE, $sumname);
     while (<FILE>) { last if ( /^Merge file$/ );}
-    my $return = $q->h2("Merge statistics");
+    my $return = $q->h5("Merge statistics");
     $return .= $q->table();
     return $return;
+}
+
+sub get_required_inputs {
+      my $self = shift;
+      my $q = $self->cgi;
+      return $q->table(
+                $q->Tr( $q->td("Email (Required)"),
+                        $q->td($q->textfield({-name=>"jobemail",
+                                              -value=>$self->email,
+                                              -size=>"25"}))
+                       ),
+                $q->Tr($q->td("Number of times each profile has been recorded")
+                       ,$q->td($q->textfield({name=>'recordings',value=>10,
+                                              maxlength=>3,size=>"1"}))
+                      ),
+                $q->tbody({id=>'profiles'}, 
+                  $q->Tr( $q->td("upload SAXS profile "),
+                        $q->td($q->filefield({-name=>'uploaded_file'}))
+                       )),
+                  $q->Tr($q->td($q->button(-value=>'Add more profiles',
+                                       -onClick=>"add_profile()"))),
+                  $q->Tr( $q->td([
+                      'Output data for parsed input files as well'
+                      ,$q->checkbox(-label=>"",
+                                  -name=>"gen_input")
+                      ])),
+                  $q->Tr( $q->td($q->input({-type=>"submit", -value=>"Submit"})),
+                        $q->td($q->input({-type=>"reset",
+                                          -value=>"Reset to defaults"}))
+                       )
+                   );
 }
 
 sub get_advanced_options {
@@ -421,11 +441,6 @@ sub get_advanced_options {
                 'First line of output files is a header'
                 ,$q->checkbox(-name=>"gen_header",
                               -label=>"")
-                ])
-            ,$q->td([
-                'Output data files for parsed input files as well'
-                ,$q->checkbox(-label=>"",
-                            -name=>"gen_input")
                 ])
             ,$q->td([
                 'Output level'
@@ -523,7 +538,7 @@ sub get_advanced_options {
             ]))
         );
 
-    return $self->make_dropdown("advanced", "Show/Hide", 0, $return);
+    return $return;
 }
 
 sub get_expert_options {
@@ -613,7 +628,7 @@ sub get_expert_options {
             ]))
     );
 
-    return $self->make_dropdown("expert", "Show/Hide", 0, $return);
+    return $return;
 }
 
 sub setupCanvas {
@@ -632,15 +647,12 @@ function gnuplot_canvas( plot ) { gnuplot.active_plot(); };
 </script>\n";
 }
 
-sub get_merge_plots()
-{
+sub get_merge_plots {
   my $self = shift;
   my $mergeplotsrc=shift;
   my $q = $self->cgi;
 
-  my $return = $q->h2("Merge Plots");
-
-  $return .= $q->script({-src=>$mergeplotsrc},"");
+  my $return = $q->script({-src=>$mergeplotsrc},"");
   #. "<table align='center'><tr><td><div  id=\"wrapper\">
 
   $return .= $q->table(
@@ -685,15 +697,12 @@ sub drawCanvasMerge {
 }
 
 
-sub get_input_plots()
-{
+sub get_input_plots {
   my $self = shift;
   my $inputsplotsrc=shift;
   my $q = $self->cgi;
 
-  my $return = $q->h2("Input Plots");
-
-  $return .= $q->script({-src=>$inputsplotsrc},"");
+  my $return = $q->script({-src=>$inputsplotsrc},"");
   #. "<table align='center'><tr><td><div  id=\"wrapper\">
 
   $return .= $q->table(
@@ -744,9 +753,7 @@ sub get_merge_color_plots()
   my $mergeplotsrc=shift;
   my $q = $self->cgi;
 
-  my $return = $q->h2("Input colored Merge Plots");
-
-  $return .= $q->script({-src=>$mergeplotsrc},"");
+  my $return = $q->script({-src=>$mergeplotsrc},"");
   #. "<table align='center'><tr><td><div  id=\"wrapper\">
 
   $return .= $q->table(

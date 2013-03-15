@@ -124,7 +124,7 @@ date
         script += 'set log y\n'
         script += 'set xlabel "q"\n'
         script += 'set ylabel "log I(q)"\n'
-        script += 'p "%s" u 1:2:4 w p lc var t "data"\n' % datafile
+        script += 'p "%s" u 1:2:(1+\$4) w p lc var t "data"\n' % datafile
         return script
 
     def plot_lin_scale_colored(self,outfile):
@@ -135,7 +135,7 @@ date
         script += 'set title "merged data colored by inputs"\n'
         script += 'set xlabel "q"\n'
         script += 'set ylabel "I(q)"\n'
-        script += 'p "%s" u 1:2:4 w p lc var t "data"\n' % datafile
+        script += 'p "%s" u 1:2:(1+\$4) w p lc var t "data"\n' % datafile
         return script
     
     def plot_inputs_log_scale(self,outfile,infiles):
@@ -154,11 +154,11 @@ date
                 script += ',\\\n  '
             script += '"%s" u 1:(\$4==1?%d*\$2:1/0):(%d*\$3) w yerr lt %d t "%s", '\
                         % (datafile,10**i,10**i,i+1,fn)
-            script += '"%s" u 1:(%d*\$2) w l lt %d not, ' \
+            script += '"%s" u 1:(\$5==1?%d*\$2:1/0) w l lt %d not, ' \
                         % (meanfile,10**i,i+2)
-            script += '"%s" u 1:(%d*(\$2+\$3)) w l lt %d not, ' \
+            script += '"%s" u 1:(\$5==1?%d*(\$2+\$3):1/0) w l lt %d not, ' \
                         % (meanfile,10**i,i+3)
-            script += '"%s" u 1:(%d*(\$2-\$3)) w l lt %d not' \
+            script += '"%s" u 1:(\$5==1?%d*(\$2-\$3):1/0) w l lt %d not' \
                         % (meanfile,10**i,i+3)
         script += '\n'
         return script
@@ -178,11 +178,11 @@ date
                 script += ',\\\n  '
             script += '"%s" u 1:(\$4==1?%d+\$2:1/0):3 w yerr lt %d t "%s", '\
                         % (datafile,i*30,i+1,fn)
-            script += '"%s" u 1:(%d+\$2) w l lt %d not, ' \
+            script += '"%s" u 1:(\$5==1?%d+\$2:1/0) w l lt %d not, ' \
                         % (meanfile,i*30,i+2)
-            script += '"%s" u 1:(%d+(\$2+\$3)) w l lt %d not, ' \
+            script += '"%s" u 1:(\$5==1?%d+(\$2+\$3):1/0) w l lt %d not, ' \
                         % (meanfile,i*30,i+3)
-            script += '"%s" u 1:(%d+(\$2-\$3)) w l lt %d not' \
+            script += '"%s" u 1:(\$5==1?%d+(\$2-\$3):1/0) w l lt %d not' \
                         % (meanfile,i*30,i+3)
         script += '\n'
         return script
@@ -203,11 +203,11 @@ date
                 script += ',\\\n  '
             script += '"%s" u (\$1**2):(\$4==1?%d*\$2:1/0):(%d*\$3) w yerr lt %d t "%s", '\
                         % (datafile,10**i,10**i,i+1,fn)
-            script += '"%s" u (\$1**2):(%d*\$2) w l lt %d not, ' \
+            script += '"%s" u (\$1**2):(\$5==1?%d*\$2:1/0) w l lt %d not, ' \
                         % (meanfile,10**i,i+2)
-            script += '"%s" u (\$1**2):(%d*(\$2+\$3)) w l lt %d not, ' \
+            script += '"%s" u (\$1**2):(\$5==1?%d*(\$2+\$3):1/0) w l lt %d not, ' \
                         % (meanfile,10**i,i+3)
-            script += '"%s" u (\$1**2):(%d*(\$2-\$3)) w l lt %d not' \
+            script += '"%s" u (\$1**2):(\$5==1?%d*(\$2-\$3):1/0) w l lt %d not' \
                         % (meanfile,10**i,i+3)
         script += '\n'
         return script
@@ -226,14 +226,14 @@ date
             meanfile='mean_'+fn
             if i>0:
                 script += ',\\\n  '
-            script += '"%s" u 1:(\$4==1?%d+\$2*\$1**2:1/0):(\$1**2*\$3) w yerr lt %d t "%s", '\
-                        % (datafile,i,i+1,fn)
-            script += '"%s" u 1:(%d+\$2*\$1**2) w l lt %d not, ' \
-                        % (meanfile,i,i+2)
-            script += '"%s" u 1:(%d+\$1**2*(\$2+\$3)) w l lt %d not, ' \
-                        % (meanfile,i,i+3)
-            script += '"%s" u 1:(%d+\$1**2*(\$2-\$3)) w l lt %d not' \
-                        % (meanfile,i,i+3)
+            script += '"%s" u 1:(\$4==1?%f+\$2*\$1**2:1/0):(\$1**2*\$3) w yerr lt %d t "%s", '\
+                        % (datafile,0.1*i,i+1,fn)
+            script += '"%s" u 1:(\$5==1?%f+\$2*\$1**2:1/0) w l lt %d not, ' \
+                        % (meanfile,0.1*i,i+2)
+            script += '"%s" u 1:(\$5==1?%f+\$1**2*(\$2+\$3):1/0) w l lt %d not, ' \
+                        % (meanfile,0.1*i,i+3)
+            script += '"%s" u 1:(\$5==1?%f+\$1**2*(\$2-\$3):1/0) w l lt %d not' \
+                        % (meanfile,0.1*i,i+3)
         script += '\n'
         return script
 
