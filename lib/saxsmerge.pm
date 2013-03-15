@@ -66,11 +66,12 @@ sub get_navigation_lab {
       &bull;&nbsp; <a href=\"http://modbase.compbio.ucsf.edu/saxsmerge/help.cgi?type=help\">Help</a>&nbsp;
       &bull;&nbsp; <a href=\"http://modbase.compbio.ucsf.edu/saxsmerge/help.cgi?type=FAQ\">FAQ</a>&nbsp;
       &bull;&nbsp; <a href=\"http://modbase.compbio.ucsf.edu/saxsmerge/help.cgi?type=download\">Download</a>&nbsp;
-      &bull;&nbsp; <a href=\"http://salilab.org/foxs\">FoXS</a>&nbsp;
-      &bull;&nbsp; <a href=\"http://www.pasteur.fr\">Institut Pasteur</a>&nbsp;
-      &bull;&nbsp; <a href=\"http://salilab.org\">Sali Lab</a>&nbsp;
-      &bull;&nbsp; <a href=\"http://salilab.org/imp\">IMP</a>&nbsp;
-      &bull;&nbsp; <a href=\"http://modbase.compbio.ucsf.edu/saxsmerge/help.cgi?type=links\">Links</a>&nbsp;</div>\n";
+      &bull;&nbsp; <a href=\"http://mobyle.pasteur.fr/cgi-bin/portal.py#forms::saxs_merge\" target=\"_blank\">Mobyle\@Pasteur</a>&nbsp;
+      &bull;&nbsp; <a href=\"http://salilab.org/foxs\" target=\"_blank\">FoXS</a>&nbsp;
+      &bull;&nbsp; <a href=\"http://salilab.org/imp\" target=\"_blank\">IMP</a>&nbsp;
+      &bull;&nbsp; <a href=\"http://www.pasteur.fr\" target=\"_blank\">Institut Pasteur</a>&nbsp;
+      &bull;&nbsp; <a href=\"http://salilab.org\" target=\"_blank\">Sali Lab</a>&nbsp;
+      </div>\n"
 }
 
 
