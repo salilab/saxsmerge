@@ -4,6 +4,9 @@
 Because your output level (advanced options) is too low. Try increasing it,
 and the webserver will happily plot the data for you.
 
+<h5>Where is the legend for the "Input colored merge plots"?</h5>
+You will find it in the "Input plots". The colors match.
+
 <h5>Why are the "Input plots" not shown?</h5>
 Because you forgot to tick the box "Output data for parsed input files as
 well".
