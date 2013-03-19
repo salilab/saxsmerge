@@ -1,17 +1,25 @@
 <h1>FAQ</h1>
 
+<p>
 <h5>Why are the "Input colored merge plots" not shown?</h5>
 Because your output level (advanced options) is too low. Try increasing it,
 and the webserver will happily plot the data for you.
+</p>
 
+<p>
 <h5>Where is the legend for the "Input colored merge plots"?</h5>
 You will find it in the "Input plots". The colors match.
+</p>
 
+<p>
 <h5>Why are the "Input plots" not shown?</h5>
 Because you forgot to tick the box "Output data for parsed input files as
 well".
+</p>
 
+<p>
 <h4> Don't see your question? Send it to me, and hope it becomes frequent!</h4>
-<p> That being said, I will still try to give you an answer quickly...</p>
+That being said, I will still try to give you an answer quickly...
+</p>
 
 
