@@ -355,8 +355,12 @@ to determine the problem.");
               $q->Tr($q->td(
             [$q->a({-href=>$job->get_results_file_url('data_merged.dat')},
                      "Merged data"),
+             $q->a({-href=>$job->get_results_file_url('data_merged_3col.dat')},
+                     "Merged data (q,I,err only)"),
              $q->a({-href=>$job->get_results_file_url('mean_merged.dat')},
                      "Merged mean"),
+             $q->a({-href=>$job->get_results_file_url('mean_merged_3col.dat')},
+                     "Merged mean (q,I,err only)"),
              $q->a({-href=>$job->get_results_file_url('summary.txt')},
                      "Summary file"),
              $q->a({-href=>$job->get_results_file_url('saxsmerge.zip')},
