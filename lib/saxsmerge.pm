@@ -351,27 +351,33 @@ to determine the problem.");
 
   #output files
   $return .= $q->h4("Output Files");
-  $return .= $q->table(
-              $q->Tr($q->td(
-            [$q->a({-href=>$job->get_results_file_url('data_merged.dat')},
-                     "Merged data"),
-             $q->a({-href=>$job->get_results_file_url('data_merged_3col.dat')},
-                     "Merged data (q,I,err only)"),
-             $q->a({-href=>$job->get_results_file_url('mean_merged.dat')},
-                     "Merged mean"),
-             $q->a({-href=>$job->get_results_file_url('mean_merged_3col.dat')},
-                     "Merged mean (q,I,err only)"),
-             $q->a({-href=>$job->get_results_file_url('summary.txt')},
-                     "Summary file"),
-             $q->a({-href=>$job->get_results_file_url('saxsmerge.zip')},
-                     "All files")
-            ])));
+  $return .= "<table><tr>";
+  if (-f 'data_merged.dat'){
+      $return .= $q->td($q->a({-href=>$job->get_results_file_url('data_merged.dat')},
+                     "Merged data"));
+      $return .= $q->td($q->a({-href=>$job->get_results_file_url('data_merged_3col.dat')},
+                     "Merged data (q,I,err only)"));
+  }
+  if (-f 'mean_merged.dat'){
+      $return .= $q->td($q->a({-href=>$job->get_results_file_url('mean_merged.dat')},
+                     "Merged mean"));
+      $return .= $q->td($q->a({-href=>$job->get_results_file_url('mean_merged_3col.dat')},
+                     "Merged mean (q,I,err only)"));
+  }
+  $return .= $q->td($q->a({-href=>$job->get_results_file_url('summary.txt')},
+                     "Summary file"));
+  $return .= $q->td($q->a({-href=>$job->get_results_file_url('saxsmerge.zip')},
+                     "All files"));
+  $return .= "</tr></table>\n";
+
+  #merge stats
+  $return .=  $self->make_dropdown("mergestatsdd",
+              $q->h4("Merge Statistics"), 0,
+              $self->get_merge_stats('summary.txt'));
 
   $return .= setupCanvas();
   if (-f 'mergeplots.js')
   {
-      #merge stats
-      #$return .= $self->get_merge_stats($job->get_results_file_url('summary.txt'));
       #gnuplots
       my $mergeplotsrc=$job->get_results_file_url('mergeplots.js');
       $return .=  $self->make_dropdown("mergeplotsdd",
@@ -401,10 +407,116 @@ sub get_merge_stats {
     my ($self, $sumname) = @_;
     my $q = $self->cgi;
     #parse summary.txt file's merge section
-    open(FILE, $sumname);
-    while (<FILE>) { last if ( /^Merge file$/ );}
-    my $return = $q->h5("Merge statistics");
-    $return .= $q->table();
+    open(FILE, $sumname) or die;
+    while (<FILE>) { last if ( /^Merge file/ );}
+    my $return = "<table border='1'>\n";
+    my @particles= ("A","G","Rg","d","s","sigma","tau","lambda");
+    $return .= "<tr>\n" .
+        $q->th(["order","filename","num points (%)",
+            "mean function"]);
+    foreach (@particles){
+        $return .= $q->th($_);
+    }
+    while (<FILE>) { last if /Number of points:/; }
+    /Number of points: (\d+)/;
+    my $nmergepoints = $1;
+    <FILE>; #drop next line
+    #get input filenames
+    my @mergefiles;
+    my @mergefpoints;
+    while (<FILE>) {
+        last if /Gaussian Process parameters/;
+        /(\d+) points from profile \d+ \((.+)\)/;
+        push(@mergefpoints, $1);
+        push(@mergefiles, $2);
+    }
+    #get merge mean parameters
+    <FILE> =~ /mean function : (\w+)/;
+    my $mergemean = $1;
+    my %mergevals;
+    my %mergeerrs;
+    while (<FILE>){
+        last if /Calculated Values/;
+        /(\w+) : (.+) \+- (.+)$/;
+        my $key = $1;
+        my $val = $2;
+        my $err = $3;
+        if ($key =~ /sigma2/){
+            $key="sigma";
+            $val=sqrt($val);
+            if ($err !~ /nan/){
+                $err = sqrt($err);
+            }
+        }
+        $mergevals{$key} = $val;
+        $mergeerrs{$key} = $err;
+    }
+    #print merge mean parameters
+    $return .= "<tr>\n";
+    $return .= $q->td(["merge","*_merged.dat", $nmergepoints. " (100%)", $mergemean]);
+    foreach (@particles){
+        $return .= "<td>";
+        if (defined($mergevals{$_})){
+            my $val = $mergevals{$_};
+            my $err = $mergeerrs{$_};
+            $return .= sprintf("%.3f", $val);
+            if ($err !~ /nan/ and $err < $val/10.){
+                $return .= " +- " . sprintf("%.3f", $err);
+            }
+        }
+        $return .= "</td>\n";
+    }
+    $return .= "</tr>\n";
+
+    #get input mean parameters
+    my $filenum=0;
+    while (<FILE>){
+        $filenum++;
+        #skip to next input
+        while (<FILE>) {last if /mean function :/;}
+        /mean function : (\w+)/;
+        my $inpmean = $1;
+        my %inpvals;
+        my %inperrs;
+        while (<FILE>){
+            last if /Calculated Values/;
+            /(\w+) : (.+) \+- (.+)$/;
+            my $key = $1;
+            my $val = $2;
+            my $err = $3;
+            if ($key =~ /sigma2/){
+                $key="sigma";
+                $val=sqrt($val);
+                if ($err !~ /nan/){
+                    $err = sqrt($err);
+                }
+            }
+            $inpvals{$key} = $val;
+            $inperrs{$key} = $err;
+        }
+        last if not (<FILE>);
+        #print inp mean parameters
+        $return .= "<tr>\n";
+        $return .= $q->td([$filenum,$mergefiles[$filenum-1],
+            $mergefpoints[$filenum-1] . " ("
+                    . sprintf("%.1f",100*$mergefpoints[$filenum-1]/$nmergepoints)
+                    . " %)", $inpmean]);
+        foreach (@particles){
+            $return .= "<td>";
+            if (defined($inpvals{$_})){
+                my $val = $inpvals{$_};
+                my $err = $inperrs{$_};
+                $return .= sprintf("%.3f", $val);
+                if ($err !~ /nan/ and $err < $val/10.){
+                    $return .= " +- " . sprintf("%.3f", $err);
+                }
+            }
+            $return .= "</td>\n";
+        }
+        $return .= "</tr>\n";
+    }
+
+    $return .= "\n</table>\n";
     return $return;
 }
 
