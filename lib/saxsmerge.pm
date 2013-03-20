@@ -95,8 +95,10 @@ sub get_header {
 
   return "<div id='header1'>
   <table> <tbody> <tr> <td halign='left'>
-  <table><tr><td><img src=\"http://salilab.org/saxsmerge/html/img/saxsmerge_logo.png\" align = 'left' height = '80'
-  alt='SAXS Merge'></td></tr>
+  <table><tr><td>
+  <a href=\"http://salilab.org/saxsmerge\">
+  <img src=\"http://salilab.org/saxsmerge/html/img/saxsmerge_logo.png\" align = 'left' height = '80'
+  alt='SAXS Merge'></a></td></tr>
          <tr><td><h1>An automated statistical method to merge SAXS profiles from different concentrations and exposure times</h1> </td></tr></table>
          </table>
       </td> </tr>
