@@ -463,7 +463,7 @@ sub get_merge_stats {
             my $err = $mergeerrs{$_};
             $return .= sprintf("%.3f", $val);
             if ($err !~ /nan/ and $err < $val/10.){
-                $return .= " +- " . sprintf("%.3f", $err);
+                $return .= " +-" . sprintf("%.3f", $err);
             }
         }
         $return .= "</td>\n";
@@ -502,7 +502,7 @@ sub get_merge_stats {
         $return .= $q->td([$filenum,$mergefiles[$filenum-1],
             $mergefpoints[$filenum-1] . " ("
                     . sprintf("%.1f",100*$mergefpoints[$filenum-1]/$nmergepoints)
-                    . " %)", $inpmean]);
+                    . "%)", $inpmean]);
         foreach (@particles){
             $return .= "<td>";
             if (defined($inpvals{$_})){
@@ -510,7 +510,7 @@ sub get_merge_stats {
                 my $err = $inperrs{$_};
                 $return .= sprintf("%.3f", $val);
                 if ($err !~ /nan/ and $err < $val/10.){
-                    $return .= " +- " . sprintf("%.3f", $err);
+                    $return .= " +-" . sprintf("%.3f", $err);
                 }
             }
             $return .= "</td>\n";
