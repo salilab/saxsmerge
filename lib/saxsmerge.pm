@@ -455,18 +455,20 @@ sub get_merge_stats {
     }
     #print merge mean parameters
     $return .= "<tr>\n";
-    $return .= $q->td(["merge","*_merged.dat", $nmergepoints. " (100%)", $mergemean]);
+    foreach ("merge","*_merged.dat", $nmergepoints. " (100%)", $mergemean){
+        $return .= "<td><b>" . $_ . "</b></td>\n";
+    }
     foreach (@particles){
-        $return .= "<td>";
+        $return .= "<td><b>";
         if (defined($mergevals{$_})){
             my $val = $mergevals{$_};
             my $err = $mergeerrs{$_};
             $return .= sprintf("%.3f", $val);
             if ($err !~ /nan/ and $err < $val/10.){
-                $return .= " +-" . sprintf("%.3f", $err);
+                $return .= " +-&nbsp;" . sprintf("%.3f", $err);
             }
         }
-        $return .= "</td>\n";
+        $return .= "</b></td>\n";
     }
     $return .= "</tr>\n";
 
@@ -510,7 +512,7 @@ sub get_merge_stats {
                 my $err = $inperrs{$_};
                 $return .= sprintf("%.3f", $val);
                 if ($err !~ /nan/ and $err < $val/10.){
-                    $return .= " +-" . sprintf("%.3f", $err);
+                    $return .= " +-&nbsp;" . sprintf("%.3f", $err);
                 }
             }
             $return .= "</td>\n";
