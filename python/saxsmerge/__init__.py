@@ -45,7 +45,7 @@ EOF
 awk '{print $1 " " $2 " " $3}' data_merged.dat > data_merged_3col.dat
 awk '{print $1 " " $2 " " $3}' mean_merged.dat > mean_merged_3col.dat
 
-zip -q -9 saxsmerge.zip data_* mean_* summary.txt saxsmerge.log
+zip -q -9 saxsmerge.zip data_* mean_* summary.txt
 
 date
 """ % (args,post)
