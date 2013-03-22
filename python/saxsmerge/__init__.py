@@ -49,7 +49,7 @@ zip -9 saxsmerge.zip data_* mean_* summary.txt
 date
 """ % (args,post)
         r = self.runnercls(script)
-        r.set_sge_options('-l arch=linux-x64 -j y')
+        r.set_sge_options('-l arch=linux-x64 -j y -o saxsmerge.log')
         return r
     
     def plot_log_scale(self,outfile,subs):
