@@ -6,7 +6,8 @@ class Job(saliweb.backend.Job):
 
     def get_protection_args(self):
         args = ['--blimit_fitting=80', '--elimit_fitting=80',
-                 '--blimit_hessian=80', '--elimit_hessian=80']
+                 '--blimit_hessian=80', '--elimit_hessian=80',
+                 '-v -v -v']
         return ' '.join(args)
 
     def get_input_args(self):
@@ -44,7 +45,7 @@ EOF
 awk '{print $1 " " $2 " " $3}' data_merged.dat > data_merged_3col.dat
 awk '{print $1 " " $2 " " $3}' mean_merged.dat > mean_merged_3col.dat
 
-zip -9 saxsmerge.zip data_* mean_* summary.txt
+zip -q -9 saxsmerge.zip data_* mean_* summary.txt saxsmerge.log
 
 date
 """ % (args,post)
