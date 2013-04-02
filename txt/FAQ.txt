@@ -1,6 +1,15 @@
 <h1>FAQ</h1>
 
 <p>
+<h5>Why does PRIMUS (or any other program) fail to read the merged data?</h5>
+Try using the standardized versions of the output files, available in the
+results page. The process of standardization only keeps the q, I and err
+columns (first three columns) of the output files. If there are multiple
+points at the same q value, they are averaged so that in the standardized
+output file, each line has a different q value.
+</p>
+
+<p>
 <h5>Why are the "Input colored merge plots" not shown?</h5>
 Because your output level (advanced options) is too low. Try increasing it,
 and the webserver will happily plot the data for you.

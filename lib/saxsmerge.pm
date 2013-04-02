@@ -358,13 +358,13 @@ to determine the problem.");
       $return .= $q->td($q->a({-href=>$job->get_results_file_url('data_merged.dat')},
                      "Merged data"));
       $return .= $q->td($q->a({-href=>$job->get_results_file_url('data_merged_3col.dat')},
-                     "Merged data (q,I,err only)"));
+                     "Merged data (standardized)"));
   }
   if (-f 'mean_merged.dat'){
       $return .= $q->td($q->a({-href=>$job->get_results_file_url('mean_merged.dat')},
                      "Merged mean"));
       $return .= $q->td($q->a({-href=>$job->get_results_file_url('mean_merged_3col.dat')},
-                     "Merged mean (q,I,err only)"));
+                     "Merged mean (standardized)"));
   }
   $return .= $q->td($q->a({-href=>$job->get_results_file_url('summary.txt')},
                      "Summary file"));

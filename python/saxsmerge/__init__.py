@@ -1,4 +1,5 @@
 import os
+from math import sqrt
 import saliweb.backend
 
 class Job(saliweb.backend.Job):
@@ -19,6 +20,35 @@ class Job(saliweb.backend.Job):
 
     def complete(self):
         os.chmod(".", 0775)
+    
+    def standardize(self, infile, outfile):
+        data=[i.split()[:3] for i in open(infile).readlines()]
+        fl=open(outfile,'w')
+        n=0
+        ntot = len(data)
+        while n < ntot:
+            i=0
+            chunk=[]
+            while n+i < ntot and data[n][0] == data[n+i][0]:
+                chunk.append(data[n+i])
+                i += 1
+            n += i
+            if len(chunk) == 1:
+                outline = tuple(chunk[0])
+            else:
+                qval = chunk[0][0]
+                Is = [float(k[1]) for k in chunk]
+                ss = [float(k[2]) for k in chunk]
+                s2mean = len(ss)/sum([1/k**2 for k in ss])
+                Imean = s2mean/len(ss)*sum([k/l**2 for (k,l) in zip(Is,ss)])
+                outline = (qval, '%-15.14G' % Imean, '%-15.14G' % (sqrt(s2mean)))
+            fl.write(' '.join(outline))
+            fl.write('\n')
+
+    def postprocess(self):
+        self.standardize('data_merged.dat','data_merged_3col.dat')
+        self.standardize('mean_merged.dat','mean_merged_3col.dat')
+        os.system('zip -q -9 saxsmerge.zip data_* mean_* summary.txt saxsmerge.log')
 
     def run(self):
         args = self.get_args()
@@ -41,11 +71,6 @@ cat <<EOF > Cpgnuplot
 %s
 EOF
 /netapp/sali/yannick/bin/gnuplot Cpgnuplot
-
-awk '{print $1 " " $2 " " $3}' data_merged.dat > data_merged_3col.dat
-awk '{print $1 " " $2 " " $3}' mean_merged.dat > mean_merged_3col.dat
-
-zip -q -9 saxsmerge.zip data_* mean_* summary.txt
 
 date
 """ % (args,post)
@@ -283,6 +308,7 @@ date
             script += self.plot_inputs_guinier(outfile+'_3',infiles,nsubs)
             script += self.plot_inputs_kratky(outfile+'_4',infiles,nsubs)
         return script
+
 
 def get_web_service(config_file):
     db = saliweb.backend.Database(Job)
