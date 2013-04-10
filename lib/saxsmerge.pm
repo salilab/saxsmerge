@@ -14,26 +14,6 @@ sub get_start_html_parameters {
   return %param;
 }
 
-
-
-sub _display_content {
-  my ($self, $content) = @_;
-  print $content;
-}
-
-sub _display_web_page {
-  my ($self, $content) = @_;
-  # Call all prefix and suffix methods before printing anything, in case one
-  # of them raises an error
-  my $prefix = $self->start_html() . "<div id='container'>" . $self->get_header();
-  my $suffix = $self->get_footer() . "</div>\n" . $self->end_html;
-  my $navigation = $self->get_navigation_lab();
-  print $prefix;
-  print $navigation;
-  $self->_display_content($content);
-  print $suffix;
-}
-
 sub get_help_page {
   my ($self, $display_type) = @_;
   my $file;
@@ -41,7 +21,7 @@ sub get_help_page {
     $file = "news.txt";
   } elsif ($display_type eq "about") {
     $file = "about.txt";
-  } elsif ($display_type eq "FAQ") {
+  } elsif ($display_type eq "FAQ" || $display_type eq "faq") {
     $file = "FAQ.txt";
   } elsif ($display_type eq "links") {
     $file = "links.txt";
@@ -53,34 +33,35 @@ sub get_help_page {
   return $self->google_tracker() . "<div id=\"fullpart\">".$self->get_text_file($file)."</div>";
 }
 
+sub get_download_page {
+  my ($self) = @_;
+  return $self->google_tracker() . "<div id=\"fullpart\">".$self->get_text_file("download.txt")."</div>";
+}
+
 sub new {
     return saliweb::frontend::new(@_, @CONFIG@);
 }
 
-sub get_navigation_lab {
-  return "<div id=\"navigation_lab\">
-      &bull;&nbsp; <a href=\"http://modbase.compbio.ucsf.edu/saxsmerge/help.cgi?type=about\">About SAXS Merge</a>&nbsp;
-      &bull;&nbsp; <a href=\"http://salilab.org/saxsmerge\">Web Server</a>&nbsp;
-      &bull;&nbsp; <a href=\"http://modbase.compbio.ucsf.edu/saxsmerge/help.cgi?type=help\">Help</a>&nbsp;
-      &bull;&nbsp; <a href=\"http://modbase.compbio.ucsf.edu/saxsmerge/help.cgi?type=FAQ\">FAQ</a>&nbsp;
-      &bull;&nbsp; <a href=\"http://modbase.compbio.ucsf.edu/saxsmerge/help.cgi?type=download\">Download</a>&nbsp;
-      &bull;&nbsp; <a href=\"http://mobyle.pasteur.fr/cgi-bin/portal.py#forms::saxs_merge\" target=\"_blank\">Mobyle\@Pasteur</a>&nbsp;
-      &bull;&nbsp; <a href=\"http://salilab.org/foxs\" target=\"_blank\">FoXS</a>&nbsp;
-      &bull;&nbsp; <a href=\"http://salilab.org/imp\" target=\"_blank\">IMP</a>&nbsp;
-      &bull;&nbsp; <a href=\"http://www.pasteur.fr\" target=\"_blank\">Institut Pasteur</a>&nbsp;
-      &bull;&nbsp; <a href=\"http://salilab.org\" target=\"_blank\">Sali Lab</a>&nbsp;
-      </div>\n"
+sub get_lab_navigation_links {
+    my $self = shift;
+    my $q = $self->cgi;
+    my $links = $self->SUPER::get_lab_navigation_links();
+    push @$links, $q->a({-href=>'http://mobyle.pasteur.fr/cgi-bin/portal.py#forms::saxs_merge'}, 
+                        'Mobyle@Pasteur'),
+                  $q->a({-href=>'http://www.pasteur.fr'},
+                        'Institut Pasteur');
+    return $links;
 }
-
 
 sub get_navigation_links {
     my $self = shift;
     my $q = $self->cgi;
     return [
         $q->a({-href=>$self->index_url}, "SAXS Merge Home"),
-        $q->a({-href=>$self->queue_url}, "SAXS Merge Current queue"),
-        $q->a({-href=>$self->help_url}, "SAXS Merge Help"),
-        $q->a({-href=>$self->contact_url}, "SAXS Merge Contact")
+        $q->a({-href=>$self->queue_url}, "Queue"),
+        $q->a({-href=>$self->help_url}, "Help"),
+        $q->a({-href=>$self->faq_url}, "FAQ"),
+        $q->a({-href=>$self->download_url}, "Download")
         ];
 }
 
@@ -89,12 +70,8 @@ sub get_project_menu {
   return "";
 }
 
-sub get_header {
-    my $self = shift;
-    my $htmlroot = $self->htmlroot;
-
-  return "<div id='header1'>
-  <table> <tbody> <tr> <td halign='left'>
+sub get_header_page_title {
+  return "<table> <tbody> <tr> <td halign='left'>
   <table><tr><td>
   <a href=\"http://salilab.org/saxsmerge\">
   <img src=\"http://salilab.org/saxsmerge/html/img/saxsmerge_logo.png\" align = 'left' height = '80'
@@ -103,9 +80,8 @@ sub get_header {
          </table>
       </td> </tr>
   </tbody>
-  </table></div>\n";
+  </table>\n";
 }
-
 
 sub get_footer {
   return "<hr size='2' width=\"80%\"><div id='address'>
