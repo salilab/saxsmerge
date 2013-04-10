@@ -100,13 +100,6 @@ sub make_dropdown {
            "<div class=\"dropdown\" id=\"${id}\"$style>\n" .
            $text . "\n</div></div>\n";
 }
-sub check_required_email {
-    my ($email) = @_;
-    if($email !~ m/^[\w\.-]+@[\w-]+\.[\w-]+((\.[\w-]+)*)?$/ ) {
-	throw saliweb::frontend::InputValidationError("Please provide a valid return email address");
-    }
-}
-
 
 sub get_input_form {
   my $self = shift;
@@ -146,14 +139,14 @@ sub get_submit_page {
     my $self = shift;
     my $q = $self->cgi;
 
-    my $email = $q->param('jobemail');
+    my $email = $q->param('jobemail') || undef;
 
-    check_required_email($email);
+    check_optional_email($email);
 
     #create job directory time_stamp
     my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime;
     my $time_stamp = $sec."_".$min."_".$hour."_".$mday."_".$mon."_".$year;
-    my $job = $self->make_job($time_stamp, $self->email);
+    my $job = $self->make_job($time_stamp);
     my $jobdir = $job->directory;
 
     my $data_file_name = $jobdir . "/input.txt";
@@ -296,15 +289,14 @@ sub get_submit_page {
 
     $job->submit($email);
 
-    my $line = $job->results_url . " " . $email;
-    #`echo $line >> ../submit.log`;
-
     # Inform the user of the job name and results URL
     my $retval = $q->p("Your job has been submitted with job ID ".$job->name);
-    #$retval .= $q->p("Results will be found at <a href=\""
-    #                    . $job->results_url . "\">this link</a>.");
-    $retval .= $q->p("You will receive an e-mail with results link "
-                     ."once the job has finished");
+    $retval .= $q->p("Results will be found at <a href=\""
+                        . $job->results_url . "\">this link</a>.");
+    if ($email) {
+        $retval .= $q->p("You will be notified at $email when job results " .
+                         "are available.");
+    }
     $retval .= $self->google_tracker();
     return $retval;
 }
@@ -504,7 +496,7 @@ sub get_required_inputs {
       my $self = shift;
       my $q = $self->cgi;
       return $q->table(
-                $q->Tr( $q->td("Email (Required)"),
+                $q->Tr( $q->td("Email (optional)"),
                         $q->td($q->textfield({-name=>"jobemail",
                                               -value=>$self->email,
                                               -size=>"25"}))
