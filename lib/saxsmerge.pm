@@ -101,6 +101,14 @@ sub make_dropdown {
            $text . "\n</div></div>\n";
 }
 
+sub check_email {
+    my ($email) = @_;
+    if($email !~ m/^[\w\.-]+@[\w-]+\.[\w-]+((\.[\w-]+)*)?$/ ) {
+	throw saliweb::frontend::InputValidationError("Please provide a valid return email address");
+    }
+}
+
+
 sub get_input_form {
   my $self = shift;
   my $q = $self->cgi;
@@ -141,7 +149,7 @@ sub get_submit_page {
 
     my $email = $q->param('jobemail') || undef;
 
-    check_optional_email($email);
+    check_email($email);
 
     #create job directory time_stamp
     my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime;
@@ -155,6 +163,11 @@ sub get_submit_page {
 
     #handle input profiles
     my $records = $q->param("recordings");
+    if (not (looks_like_number($records) and $records >1))
+    {
+        throw saliweb::frontend::InputValidationError(
+            "The number of times each profile has been recorded must be at least 2!");
+    }
     my @uplfiles = $q->upload("uploaded_file");
     my $upl_num = 0;
     foreach my $upl (@uplfiles) {      
@@ -186,6 +199,13 @@ sub get_submit_page {
     #general
     if ($q->param("gen_header")) {print DATAFILE "--header\n";}
     if ($q->param("gen_input")) {print DATAFILE "--allfiles\n";}
+    if ($q->param("gen_unit") =~ /nanometer/) {
+        my $unitfile = $jobdir."/is_nm";
+        open(UNITFILE, "> $unitfile")
+            or throw saliweb::frontend::InternalError("Cannot open $unitfile: $!");
+        print UNITFILE "nm";
+        close(UNITFILE);
+    }
     print DATAFILE "--outlevel=".$q->param("gen_output")."\n";
     print DATAFILE "--stop=".$q->param("gen_stop")."\n";
 
@@ -516,6 +536,12 @@ sub get_required_inputs {
                       ,$q->checkbox(-label=>"",
                                   -name=>"gen_input")
                       ])),
+                  $q->Tr( $q->td([
+                        'Momentum transfer values are per'
+                      ,$q->radio_group('gen_unit', ['Angstrom','nanometer'],
+                                      'Angstrom','false',
+                        -onClick=>"document.getElementById('clean_cut').innerHTML='1';")
+                      ])),
                   $q->Tr( $q->td($q->input({-type=>"submit", -value=>"Submit"})),
                         $q->td($q->input({-type=>"reset",
                                           -value=>"Reset to defaults"}))
@@ -667,7 +693,7 @@ sub get_expert_options {
             ,$q->td([
                 'Start discarding curve after qcut='
                 ,$q->textfield({name=>'clean_cut',value=>0.1,
-                               size=>"5"})
+                               size=>"5", id=>"clean_cut"})
                 ])
             ]))
         #fitting
