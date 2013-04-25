@@ -176,18 +176,22 @@ sub get_submit_page {
 		throw saliweb::frontend::InputValidationError(
                         "Please limit the file name length to a maximum of 40 characters");
 	    }
-        my $buffer;
-        my $fullpath = $job->directory . "/" . $upl;
-        open(OUTFILE, '>', $fullpath)
-	    or throw saliweb::frontend::InternalError("Cannot open $fullpath: $!");
-        while (<$upl>) {
-	    print OUTFILE $_;
-        }
-        close OUTFILE;
-	print DATAFILE "$upl=$records\n";
-        #system("echo $upl >>$list");
+            if($upl =~ /(zip|tar|gz|bz2|rar)$/){
+		throw saliweb::frontend::InputValidationError(
+                        "Please provide plain text files with three columns (q,I,err)");
+            }
+            my $buffer;
+            my $fullpath = $job->directory . "/" . $upl;
+            open(OUTFILE, '>', $fullpath)
+                or throw saliweb::frontend::InternalError("Cannot open $fullpath: $!");
+            while (<$upl>) {
+                print OUTFILE $_;
+            }
+            close OUTFILE;
+            print DATAFILE "$upl=$records\n";
+            #system("echo $upl >>$list");
 
-        $upl_num++;
+            $upl_num++;
 	}
     }
     if ($upl_num == 0) {throw saliweb::frontend::InputValidationError(
