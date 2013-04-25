@@ -149,7 +149,7 @@ sub get_submit_page {
 
     my $email = $q->param('jobemail') || undef;
 
-    check_email($email);
+    if (defined $email) {check_email($email);}
 
     #create job directory time_stamp
     my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime;
@@ -311,7 +311,11 @@ sub get_submit_page {
 
     close(DATAFILE);
 
-    $job->submit($email);
+    if (defined $email) {
+        $job->submit($email);
+    } else {
+        $job->submit();
+    }
 
     # Inform the user of the job name and results URL
     my $retval = $q->p("Your job has been submitted with job ID ".$job->name);
