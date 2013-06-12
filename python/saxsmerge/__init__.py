@@ -198,9 +198,9 @@ date
         script="reset\n"
         script += 'set terminal canvas solid butt size 400,350 fsize 10 '
         script += 'lw 1.5 fontscale 1 name "%s" jsdir "."\n' % outfile
-        script += 'set title "input files log-scale"\n'
+        script += 'set title "input files linear scale"\n'
         script += 'set xlabel "q"\n'
-        script += 'set ylabel "log I(q)"\n'
+        script += 'set ylabel "I(q)"\n'
         script += 'p '
         for i,fn in enumerate(infiles):
             datafile='data_'+fn
@@ -256,21 +256,24 @@ date
         script += 'set xlabel "q"\n'
         script += 'set ylabel "q^2 I(q)"\n'
         script += 'p '
+        mult=1
+        if os.path.isfile('is_nm'):
+            mult=100
         for i,fn in enumerate(infiles):
             datafile='data_'+fn
             meanfile='mean_'+fn
             if i>0:
                 script += ',\\\n  '
             script += '"%s" every %d u 1:(\$4==1?%f+\$2*\$1**2:1/0) w p lt %d t "%s", '\
-                        % (datafile,subs,0.1*i,i+1,fn)
+                        % (datafile,subs,mult*0.1*i,i+1,fn)
             script += '"%s" every %d u 1:(\$4==1?%f+\$2*\$1**2:1/0):(\$1**2*\$3) w yerr lt %d not, '\
-                        % (datafile,subs,0.1*i,i+1)
+                        % (datafile,subs,mult*0.1*i,i+1)
             script += '"%s" every %d u 1:(\$5==1?%f+\$2*\$1**2:1/0) w l lt %d not, ' \
-                        % (meanfile,subs,0.1*i,i+2)
+                        % (meanfile,subs,mult*0.1*i,i+2)
             script += '"%s" every %d u 1:(\$5==1?%f+\$1**2*(\$2+\$3):1/0) w l lt %d not, ' \
-                        % (meanfile,subs,0.1*i,i+3)
+                        % (meanfile,subs,mult*0.1*i,i+3)
             script += '"%s" every %d u 1:(\$5==1?%f+\$1**2*(\$2-\$3):1/0) w l lt %d not' \
-                        % (meanfile,subs,0.1*i,i+3)
+                        % (meanfile,subs,mult*0.1*i,i+3)
         script += '\n'
         return script
 

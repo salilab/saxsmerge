@@ -203,7 +203,9 @@ sub get_submit_page {
     #general
     if ($q->param("gen_header")) {print DATAFILE "--header\n";}
     if ($q->param("gen_input")) {print DATAFILE "--allfiles\n";}
-    if ($q->param("gen_unit") =~ /nanometer/) {
+    my $mult=1;
+    if ($q->param("gen_unit") =~ /Nanometer/) {
+        $mult=10;
         my $unitfile = $jobdir."/is_nm";
         open(UNITFILE, "> $unitfile")
             or throw saliweb::frontend::InternalError("Cannot open $unitfile: $!");
@@ -264,6 +266,7 @@ sub get_submit_page {
         throw saliweb::frontend::InputValidationError(
             "Expert: general: lambda minimum is invalid positive float");
     }
+    $lambdamin = $lambdamin*$mult;
     print DATAFILE "--lambdamin=$lambdamin\n";
     if ($q->param("gen_postpone")) {print DATAFILE "--postpone_cleanup\n";}
     #cleanup
@@ -273,6 +276,7 @@ sub get_submit_page {
         throw saliweb::frontend::InputValidationError(
             "Expert: cleanup: q cutoff is invalid positive float");
     }
+    $qcut = $qcut*$mult;
     print DATAFILE "--acutoff=$qcut\n";
     #fitting
     if ($q->param("fit_avg")) {print DATAFILE "--baverage\n";}
@@ -546,9 +550,8 @@ sub get_required_inputs {
                       ])),
                   $q->Tr( $q->td([
                         'Momentum transfer values are per'
-                      ,$q->radio_group('gen_unit', ['Angstrom','nanometer'],
-                                      'Angstrom','false',
-                        -onClick=>"document.getElementById('clean_cut').innerHTML='1';")
+                      ,$q->radio_group('gen_unit', ['Angstrom','Nanometer'],
+                                      'Angstrom','false')
                       ])),
                   $q->Tr( $q->td($q->input({-type=>"submit", -value=>"Submit"})),
                         $q->td($q->input({-type=>"reset",
@@ -685,7 +688,7 @@ sub get_expert_options {
                         value=>200, size=>"5"})
                 ])
             ,$q->td([
-                'Lower bound for lambda in steps 2 and 5'
+                'Lower bound for lambda in steps 2 and 5 (per Angstrom)'
                 ,$q->textfield({name=>'gen_lambdamin',
                         value=>0.005, size=>"5"})
                 ])
@@ -699,7 +702,7 @@ sub get_expert_options {
         ,$q->tbody($q->Tr([
             $q->th("Cleanup (Step 1)")
             ,$q->td([
-                'Start discarding curve after qcut='
+                'Start discarding curve after qcut= (per Angstrom)'
                 ,$q->textfield({name=>'clean_cut',value=>0.1,
                                size=>"5", id=>"clean_cut"})
                 ])
