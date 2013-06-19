@@ -201,7 +201,10 @@ sub get_submit_page {
 
     #advanced options
     #general
+    if ($q->param("gen_auto")) {print DATAFILE "--auto\n";}
     if ($q->param("gen_header")) {print DATAFILE "--header\n";}
+    if ($q->param("gen_noisy")) {print DATAFILE "--remove_noisy\n";}
+    if ($q->param("gen_redundant")) {print DATAFILE "--remove_redundant\n";}
     if ($q->param("gen_input")) {print DATAFILE "--allfiles\n";}
     my $mult=1;
     if ($q->param("gen_unit") =~ /Nanometer/) {
@@ -544,6 +547,11 @@ sub get_required_inputs {
                   $q->Tr($q->td($q->button(-value=>'Add more profiles',
                                        -onClick=>"add_profile()"))),
                   $q->Tr( $q->td([
+                      'Automatically determine profile order'
+                      ,$q->checkbox(-label=>"",
+                                  -name=>"gen_auto")
+                      ])),
+                  $q->Tr( $q->td([
                       'Output data for parsed input files as well'
                       ,$q->checkbox(-label=>"",
                                   -name=>"gen_input")
@@ -572,6 +580,16 @@ sub get_advanced_options {
                               -label=>"")
                 ])
             ,$q->td([
+                'Remove points with too large error bars'
+                ,$q->checkbox(-name=>"gen_noisy",
+                              -label=>"")
+                ])
+            ,$q->td([
+                'Remove high noise data if it is redundant'
+                ,$q->checkbox(-name=>"gen_redundant",
+                              -label=>"")
+                ])
+            ,$q->td([
                 'Output level'
                 ,$q->popup_menu(-name=>"gen_output",
                                 -Values=>['sparse','normal','full'],
@@ -590,8 +608,8 @@ sub get_advanced_options {
         ,$q->tbody($q->Tr([
             $q->th("Cleanup (Step 1)")
             ,$q->td([
-                'Type I error'
-                ,$q->textfield({name=>'clean_alpha',value=>1e-4,
+                'Type I error (before Bonferroni correction)'
+                ,$q->textfield({name=>'clean_alpha',value=>0.05,
                                size=>"5"})
                 ])
             ]))

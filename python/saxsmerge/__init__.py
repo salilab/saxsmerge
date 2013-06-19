@@ -46,8 +46,10 @@ class Job(saliweb.backend.Job):
             fl.write('\n')
 
     def postprocess(self):
-        self.standardize('data_merged.dat','data_merged_3col.dat')
-        self.standardize('mean_merged.dat','mean_merged_3col.dat')
+        if os.path.isfile('data_merged.dat'):
+            self.standardize('data_merged.dat','data_merged_3col.dat')
+        if os.path.isfile('mean_merged.dat'):
+            self.standardize('mean_merged.dat','mean_merged_3col.dat')
         os.system('zip -q -9 saxsmerge.zip data_* mean_* summary.txt saxsmerge.log')
 
     def run(self):
@@ -144,7 +146,7 @@ date
         script += '"%s" every %d u 1:(\$1**2*(\$2-\$3)) w l lt 3 not\n' % (meanfile,subs)
         return script
 
-    def plot_log_scale_colored(self,outfile,subs):
+    def plot_log_scale_colored(self,outfile,subs, full=False):
         datafile = "data_merged.dat"
         script="reset\n"
         script += 'set terminal canvas solid butt size 400,350 fsize 10 '
@@ -153,10 +155,13 @@ date
         script += 'set log y\n'
         script += 'set xlabel "q"\n'
         script += 'set ylabel "log I(q)"\n'
-        script += 'p "%s" every %d u 1:2:(1+\$4) w p lc var not\n' % (datafile,subs)
+        if full:
+            script += 'p "%s" every %d u 1:2:(1+\$7) w p lc var not\n' % (datafile,subs)
+        else:
+            script += 'p "%s" every %d u 1:2:(1+\$4) w p lc var not\n' % (datafile,subs)
         return script
 
-    def plot_lin_scale_colored(self,outfile,subs):
+    def plot_lin_scale_colored(self,outfile,subs, full=False):
         datafile = "data_merged.dat"
         script="reset\n"
         script += 'set terminal canvas solid butt size 400,350 fsize 10 '
@@ -164,7 +169,10 @@ date
         script += 'set title "merged data colored by inputs"\n'
         script += 'set xlabel "q"\n'
         script += 'set ylabel "I(q)"\n'
-        script += 'p "%s" every %d u 1:2:(1+\$4) w p lc var not\n' % (datafile,subs)
+        if full:
+            script += 'p "%s" every %d u 1:2:(1+\$7) w p lc var not\n' % (datafile,subs)
+        else:
+            script += 'p "%s" every %d u 1:2:(1+\$4) w p lc var not\n' % (datafile,subs)
         return script
     
     def plot_inputs_log_scale(self,outfile,infiles,subs):
@@ -286,6 +294,7 @@ date
         infile = open('input.txt').readlines()
         hasmerge = '--stop=merging\n' in infile
         haslongtable = not ('--outlevel=sparse\n' in infile)
+        hasfull = '--outlevel=full\n' in infile
         hasinputs = '--allfiles\n' in infile
         nsubs = self.estimate_subsampling(infile[0][:infile[0].rfind('=')])
         #merge-related plots
@@ -300,8 +309,10 @@ date
         if hasmerge and haslongtable:
             outfile = "mergeinplots"
             script += 'set output "%s.js"\n' % outfile
-            script += self.plot_log_scale_colored(outfile+'_1',nsubs)
-            script += self.plot_lin_scale_colored(outfile+'_2',nsubs)
+            script += self.plot_log_scale_colored(outfile+'_1',nsubs,
+                    full=hasfull)
+            script += self.plot_lin_scale_colored(outfile+'_2',nsubs,
+                    full=hasfull)
         if hasinputs:
             infiles=[i[:i.rfind('=')] for i in infile if not i.startswith('--')]
             outfile = "inputplots"
