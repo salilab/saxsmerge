@@ -6,7 +6,7 @@ class Job(saliweb.backend.Job):
     runnercls = saliweb.backend.SGERunner
 
     def get_protection_args(self):
-        args = ['--blimit_fitting=80', '--elimit_fitting=80',
+        args = ['--blimit_fitting=240', '--elimit_fitting=240',
                  '--blimit_hessian=80', '--elimit_hessian=80',
                  '-v -v -v']
         return ' '.join(args)
@@ -45,6 +45,17 @@ class Job(saliweb.backend.Job):
             fl.write(' '.join(outline))
             fl.write('\n')
 
+    def preprocess(self):
+        """store all used options for statistical purposes"""
+        args = [l.rstrip() for l in open('input.txt') if l.startswith('-')]
+        args.sort()
+        wd = os.getcwd().split('/')[-1].split('_')
+        args = wd + args
+        fl=open('/modbase4/home/saxsmerge/saxsmerge_stats.log','a')
+        if fl:
+            fl.write('\t'.join(args))
+            fl.write('\n')
+
     def postprocess(self):
         if os.path.isfile('data_merged.dat'):
             self.standardize('data_merged.dat','data_merged_3col.dat')
@@ -59,8 +70,8 @@ class Job(saliweb.backend.Job):
 date
 hostname
 
-IMPPY="/netapp/sali/saxsmerge/imp/cmake-fast/setup_environment.sh"
-SMERGE="/netapp/sali/saxsmerge/imp/src/applications/saxs_merge/saxs_merge.py"
+IMPPY="/netapp/sali/saxsmerge/imp/yannick/build-fast/setup_environment.sh"
+SMERGE="/netapp/sali/saxsmerge/imp/yannick/src/applications/saxs_merge/saxs_merge.py"
 
 #. /netapp/sali/yannick/.bashrc
 #export PATH="/netapp/sali/yannick/bin:$PATH"

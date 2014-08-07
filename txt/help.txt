@@ -5,8 +5,9 @@
 <h5>Just give it a try!</h5>
 <p>To run SAXS Merge on a set of SAXS profiles, just upload them in the
 provided boxes. We tried to find the best parameters for the merge, so you
-should just go ahead, provide an email address and hit the submit button. We
-need your email to send you data, and it will not be used for other purposes.
+should just go ahead, provide an optional email address and hit the submit button.
+We will not use your email for any other purpose other than job feedback. We
+also provide an example output for you to try (see link above).
 </p> 
 
 <p> When performing the merge, you will always obtain at least three files</p>
@@ -73,6 +74,6 @@ files, check this box. In that case, you will get two output files per input
 file, starting with "data_" and "mean_". These files contain the rescaled and
 annotated input data, and the Gaussian Process Interpolation respectively. In
 addition to these files, some extra diagnostics plots are displayed in the
-results section</p>
+results section.</p>
 
 </div>

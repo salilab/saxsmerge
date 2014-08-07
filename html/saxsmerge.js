@@ -1,7 +1,7 @@
 function add_profile() {
   
   var row = '<tr>' +
-            '<td> upload SAXS profile </td>' +
+            '<td> Upload SAXS profile </td>' +
             '<td><input type="file" name="uploaded_file"  /></td>' +
             '</tr>'
   $(row).appendTo("#profiles");

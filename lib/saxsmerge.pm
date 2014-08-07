@@ -46,10 +46,7 @@ sub get_lab_navigation_links {
     my $self = shift;
     my $q = $self->cgi;
     my $links = $self->SUPER::get_lab_navigation_links();
-    push @$links, $q->a({-href=>'http://mobyle.pasteur.fr/cgi-bin/portal.py#forms::saxs_merge'}, 
-                        'Mobyle@Pasteur'),
-                  $q->a({-href=>'http://www.pasteur.fr'},
-                        'Institut Pasteur');
+    push @$links, $q->a({-href=>'http://www.pasteur.fr'}, 'Institut Pasteur');
     return $links;
 }
 
@@ -61,7 +58,8 @@ sub get_navigation_links {
         $q->a({-href=>$self->queue_url}, "Queue"),
         $q->a({-href=>$self->help_url}, "Help"),
         $q->a({-href=>$self->faq_url}, "FAQ"),
-        $q->a({-href=>$self->download_url}, "Download")
+        $q->a({-href=>$self->download_url}, "Download"),
+        $q->a({-href=>"http://modbase.compbio.ucsf.edu/saxsmerge/results.cgi/11_56_1_17_11_113?passwd=kqzEy4go4s"}, "Example output")
         ];
 }
 
@@ -74,7 +72,7 @@ sub get_header_page_title {
   return "<table> <tbody> <tr> <td halign='left'>
   <table><tr><td>
   <a href=\"http://salilab.org/saxsmerge\">
-  <img src=\"http://salilab.org/saxsmerge/html/img/saxsmerge_logo.png\" align = 'left' height = '80'
+  <img src=\"//salilab.org/saxsmerge/html/img/saxsmerge_logo.png\" align = 'left' height = '80'
   alt='SAXS Merge'></a></td></tr>
          <tr><td><h1>An automated statistical method to merge SAXS profiles from different concentrations and exposure times</h1> </td></tr></table>
          </table>
@@ -85,7 +83,11 @@ sub get_header_page_title {
 
 sub get_footer {
   return "<hr size='2' width=\"80%\"><div id='address'>
-<p> <p>Contact: <script>escramble(\"yannick.spill\",\"pasteur.fr\")</script><br></div>\n";
+<p> <p>Contact: <script>escramble(\"yannick.spill\",\"pasteur.fr\")</script><br></div>
+<p>If you use this server, please cite<br>
+Spill, Y. G., Kim, S. J., Schneidman-Duhovny, D., Russel, D.,
+Webb, B., Sali, A. &amp; Nilges, M. (2014). <i>J. Synchrotron Rad.</i>
+<b>21</b>, 203&ndash;208.\n";
 }
 
 sub make_dropdown {
@@ -263,14 +265,6 @@ sub get_submit_page {
         }
         print DATAFILE "--npoints=$qnum\n";
     }
-    my $lambdamin = $q->param("gen_lambdamin");
-    if ( not (looks_like_number($lambdamin) and $lambdamin>0))
-    { 
-        throw saliweb::frontend::InputValidationError(
-            "Expert: general: lambda minimum is invalid positive float");
-    }
-    $lambdamin = $lambdamin*$mult;
-    print DATAFILE "--lambdamin=$lambdamin\n";
     if ($q->param("gen_postpone")) {print DATAFILE "--postpone_cleanup\n";}
     #cleanup
     my $qcut = $q->param("clean_cut");
@@ -283,20 +277,6 @@ sub get_submit_page {
     print DATAFILE "--acutoff=$qcut\n";
     #fitting
     if ($q->param("fit_avg")) {print DATAFILE "--baverage\n";}
-    my $dstart = $q->param("fit_d");
-    if ( not (looks_like_number($dstart) and $dstart>=0))
-    { 
-        throw saliweb::frontend::InputValidationError(
-            "Expert: fitting: d initial value is invalid positive float");
-    }
-    print DATAFILE "--bd=$dstart\n";
-    my $sstart = $q->param("fit_s");
-    if ( not (looks_like_number($sstart) and $sstart>=0.0))
-    { 
-        throw saliweb::frontend::InputValidationError(
-            "Expert: fitting: s initial value is invalid positive float");
-    }
-    print DATAFILE "--bs=$sstart\n";
     #rescaling
     print DATAFILE "--creference=".$q->param("res_ref")."\n";
     my $ngamma = $q->param("res_npoints");
@@ -541,14 +521,16 @@ sub get_required_inputs {
                                               maxlength=>3,size=>"1"}))
                       ),
                 $q->tbody({id=>'profiles'}, 
-                  $q->Tr( $q->td("upload SAXS profile "),
-                        $q->td($q->filefield({-name=>'uploaded_file'}))
+                  $q->Tr( $q->td("Upload SAXS profile "),
+                        $q->td($q->filefield({-name=>'uploaded_file'})),
+                        $q->td($q->a({-href=>'html/example/example_input.zip'},
+                                'Example input'))
                        )),
                   $q->Tr($q->td($q->button(-value=>'Add more profiles',
                                        -onClick=>"add_profile()"))),
                   $q->Tr( $q->td([
                       'Automatically determine profile order'
-                      ,$q->checkbox(-label=>"",
+                      ,$q->checkbox(-label=>"", -checked=>1,
                                   -name=>"gen_auto")
                       ])),
                   $q->Tr( $q->td([
@@ -581,12 +563,12 @@ sub get_advanced_options {
                 ])
             ,$q->td([
                 'Remove points with too large error bars'
-                ,$q->checkbox(-name=>"gen_noisy",
+                ,$q->checkbox(-name=>"gen_noisy", -checked=>1,
                               -label=>"")
                 ])
             ,$q->td([
                 'Remove high noise data if it is redundant'
-                ,$q->checkbox(-name=>"gen_redundant",
+                ,$q->checkbox(-name=>"gen_redundant", -checked=>1,
                               -label=>"")
                 ])
             ,$q->td([
@@ -706,11 +688,6 @@ sub get_expert_options {
                         value=>200, size=>"5"})
                 ])
             ,$q->td([
-                'Lower bound for lambda in steps 2 and 5 (per Angstrom)'
-                ,$q->textfield({name=>'gen_lambdamin',
-                        value=>0.005, size=>"5"})
-                ])
-            ,$q->td([
                 'Cleanup step comes after rescaling step'
                 ,$q->checkbox(-label=>"",
                             -name=>"gen_postpone")
@@ -732,16 +709,6 @@ sub get_expert_options {
                 'Average over parameters instead of taking most probable set'
                 ,$q->checkbox(-label=>"",
                             -name=>"fit_avg")
-                ])
-            ,$q->td([
-                'Initial value for d',
-                ,$q->textfield({name=>'fit_d',value=>4.0,
-                               size=>"5"})
-                ])
-            ,$q->td([
-                'Initial value for s',
-                ,$q->textfield({name=>'fit_s',value=>0.0,
-                               size=>"5"})
                 ])
             ]))
         #Rescaling

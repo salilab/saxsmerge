@@ -1,7 +1,7 @@
 <h1>FAQ</h1>
 
 <p>
-<h5>Why does PRIMUS (or any other program) fail to read the merged data?</h5>
+<h5>Why does program X fail to read the merged data?</h5>
 Try using the standardized versions of the output files, available in the
 results page. The process of standardization only keeps the q, I and err
 columns (first three columns) of the output files. If there are multiple
@@ -24,6 +24,12 @@ You will find it in the "Input plots". The colors match.
 <h5>Why are the "Input plots" not shown?</h5>
 Because you forgot to tick the box "Output data for parsed input files as
 well".
+</p>
+
+<p>
+<h5>How are the profiles rescaled to one another</h5>
+Internally, the curves are rescaled to the last one, but for the final
+output, their values are rescaled so that I(0) ~ 100 
 </p>
 
 <p>
