@@ -1,3 +1,6 @@
+[![python coverage](https://salilab.org/coverage/stat/?s=saxsmerge&t=python)](http://salilab.org/coverage/saxsmerge/python/)
+[![perl coverage](https://salilab.org/coverage/stat/?s=saxsmerge&t=perl)](http://salilab.org/coverage/saxsmerge/perl/)
+
 This is the source code for [SAXS Merge](http://salilab.org/saxsmerge/), a web
 service for the automated statistical merging of SAXS profiles from different
 concentrations and exposure times. It uses
