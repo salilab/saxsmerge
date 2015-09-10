@@ -1,5 +1,6 @@
-[![python coverage](https://salilab.org/coverage/stat/?s=saxsmerge&t=python)](http://salilab.org/coverage/saxsmerge/python/)
-[![perl coverage](https://salilab.org/coverage/stat/?s=saxsmerge&t=perl)](http://salilab.org/coverage/saxsmerge/perl/)
+[![nightly build](https://salilab.org/nightly/stat/?s=saxsmerge&t=build)](https://salilab.org/nightly/saxsmerge/)
+[![python coverage](https://salilab.org/nightly/stat/?s=saxsmerge&t=python)](https://salilab.org/nightly/saxsmerge/logs/coverage/python/)
+[![perl coverage](https://salilab.org/nightly/stat/?s=saxsmerge&t=perl)](https://salilab.org/nightly/saxsmerge/logs/coverage/perl/)
 
 This is the source code for [SAXS Merge](http://salilab.org/saxsmerge/), a web
 service for the automated statistical merging of SAXS profiles from different
