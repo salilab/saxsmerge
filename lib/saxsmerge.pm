@@ -1,6 +1,7 @@
 package saxsmerge;
 use base qw(saliweb::frontend);
 use strict;
+use Scalar::Util qw/looks_like_number/;
 
 # Add our own JavaScript and CSS to the page header
 sub get_start_html_parameters {
@@ -199,8 +200,6 @@ sub get_submit_page {
     }
     if ($upl_num == 0) {throw saliweb::frontend::InputValidationError(
                         "Please input at least one file!");}
-
-    use Scalar::Util qw/looks_like_number/;
 
     #advanced options
     #general
