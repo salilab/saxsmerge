@@ -1,6 +1,5 @@
-[![nightly build](https://salilab.org/nightly/stat/?s=saxsmerge&t=build)](https://salilab.org/nightly/saxsmerge/)
-[![python coverage](https://salilab.org/nightly/stat/?s=saxsmerge&t=python)](https://salilab.org/nightly/saxsmerge/logs/coverage/python/)
-[![perl coverage](https://salilab.org/nightly/stat/?s=saxsmerge&t=perl)](https://salilab.org/nightly/saxsmerge/logs/coverage/perl/)
+[![Build Status](https://travis-ci.org/salilab/saxsmerge.svg?branch=master)](https://travis-ci.org/salilab/saxsmerge)
+[![codecov](https://codecov.io/gh/salilab/saxsmerge/branch/master/graph/badge.svg)](https://codecov.io/gh/salilab/saxsmerge)
 
 This is the source code for [SAXS Merge](https://salilab.org/saxsmerge/), a web
 service for the automated statistical merging of SAXS profiles from different
