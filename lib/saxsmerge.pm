@@ -40,7 +40,7 @@ sub get_download_page {
 }
 
 sub new {
-    return saliweb::frontend::new(@_, @CONFIG@);
+    return saliweb::frontend::new(@_, "##CONFIG##");
 }
 
 sub get_lab_navigation_links {
