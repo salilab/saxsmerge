@@ -8,9 +8,9 @@ sub get_start_html_parameters {
   my ($self, $style) = @_;
   my %param = $self->SUPER::get_start_html_parameters($style);
   push @{$param{-script}}, {-language => 'JavaScript',
-                            -src => 'http://modbase.compbio.ucsf.edu/saxsmerge/html/jquery-1.8.1.min.js' };
+                            -src => '//modbase.compbio.ucsf.edu/saxsmerge/html/jquery-1.8.1.min.js' };
   push @{$param{-script}}, {-language => 'JavaScript',
-                            -src => 'http://modbase.compbio.ucsf.edu/saxsmerge/html/saxsmerge.js' };
+                            -src => '//modbase.compbio.ucsf.edu/saxsmerge/html/saxsmerge.js' };
   #push @{$param{-style}->{'-src'}}, 'html/saxsmerge.css';
   return %param;
 }
@@ -60,7 +60,7 @@ sub get_navigation_links {
         $q->a({-href=>$self->help_url}, "Help"),
         $q->a({-href=>$self->faq_url}, "FAQ"),
         $q->a({-href=>$self->download_url}, "Download"),
-        $q->a({-href=>"http://modbase.compbio.ucsf.edu/saxsmerge/results.cgi/11_56_1_17_11_113?passwd=kqzEy4go4s"}, "Example output")
+        $q->a({-href=>"https://modbase.compbio.ucsf.edu/saxsmerge/results.cgi/11_56_1_17_11_113?passwd=kqzEy4go4s"}, "Example output")
         ];
 }
 
@@ -72,7 +72,7 @@ sub get_project_menu {
 sub get_header_page_title {
   return "<table> <tbody> <tr> <td halign='left'>
   <table><tr><td>
-  <a href=\"http://salilab.org/saxsmerge\">
+  <a href=\"https://salilab.org/saxsmerge\">
   <img src=\"//salilab.org/saxsmerge/html/img/saxsmerge_logo.png\" align = 'left' height = '80'
   alt='SAXS Merge'></a></td></tr>
          <tr><td><h1>An automated statistical method to merge SAXS profiles from different concentrations and exposure times</h1> </td></tr></table>
