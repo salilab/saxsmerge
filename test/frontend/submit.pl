@@ -78,7 +78,8 @@ sub make_default_submit_parameters {
 
     ok(open(FH, "> test.profile"), "Open test.profile");
     ok(close(FH), "Close test.profile");
-    $cgi->param('uploaded_file', (TestFh->new('test.profile')));
+    $cgi->param('uploaded_file', (TestFh->new('test.profile',
+                                              '../../../fo=o b;&a.r')));
 
     my $ret = $self->get_submit_page();
     like($ret, qr/Your job has been submitted.*Results will be found/ms,
@@ -91,7 +92,7 @@ sub make_default_submit_parameters {
         $contents = <FH>
     }
     ok(close(FH), "Close input.txt");
-    like($contents, qr/test\.profile=3.*\-\-outlevel=normal/ms,
+    like($contents, qr/fooba.r=3.*\-\-outlevel=normal/ms,
          "submit page output file");
 
     chdir('/') # Allow the temporary directory to be deleted

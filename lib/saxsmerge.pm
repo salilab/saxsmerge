@@ -1,6 +1,8 @@
 package saxsmerge;
-use base qw(saliweb::frontend);
+use saliweb::frontend;
 use strict;
+our @ISA = "saliweb::frontend";
+
 use Scalar::Util qw/looks_like_number/;
 
 # Add our own JavaScript and CSS to the page header
@@ -185,14 +187,18 @@ sub get_submit_page {
                         "Please provide plain text files with three columns (q,I,err)");
             }
             my $buffer;
-            my $fullpath = $job->directory . "/" . $upl;
+            my $filename = sanitize_filename($upl);
+            # Make sure it doesn't contain = either since that will confuse
+            # parsing of the datafile
+            $filename =~ s/=//g;
+            my $fullpath = $job->directory . "/" . $filename;
             open(OUTFILE, '>', $fullpath)
                 or throw saliweb::frontend::InternalError("Cannot open $fullpath: $!");
             while (<$upl>) {
                 print OUTFILE $_;
             }
             close OUTFILE;
-            print DATAFILE "$upl=$records\n";
+            print DATAFILE "$filename=$records\n";
             #system("echo $upl >>$list");
 
             $upl_num++;
