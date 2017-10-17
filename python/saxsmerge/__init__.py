@@ -73,11 +73,6 @@ hostname
 IMPPY="/netapp/sali/saxsmerge/imp/yannick/build-fast/setup_environment.sh"
 SMERGE="/netapp/sali/saxsmerge/imp/yannick/src/applications/saxs_merge/saxs_merge.py"
 
-#. /netapp/sali/yannick/.bashrc
-#export PATH="/netapp/sali/yannick/bin:$PATH"
-#export LD_LIBRARY_PATH="/netapp/sali/yannick/lib:$LD_LIBRARY_PATH"
-#export CPPFLAGS="/netapp/sali/yannick/include:$CPPFLAGS"
-
 $IMPPY $SMERGE %s
 
 cat <<EOF > Cpgnuplot
