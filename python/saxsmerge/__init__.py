@@ -69,6 +69,7 @@ class Job(saliweb.backend.Job):
         script="""
 date
 hostname
+module load gnuplot
 
 IMPPY="/netapp/sali/saxsmerge/imp/yannick/build-fast/setup_environment.sh"
 SMERGE="/netapp/sali/saxsmerge/imp/yannick/src/applications/saxs_merge/saxs_merge.py"
@@ -78,7 +79,7 @@ $IMPPY $SMERGE %s
 cat <<EOF > Cpgnuplot
 %s
 EOF
-/netapp/sali/yannick/bin/gnuplot Cpgnuplot
+gnuplot Cpgnuplot
 
 date
 """ % (args,post)
