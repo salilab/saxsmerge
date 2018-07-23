@@ -9,6 +9,13 @@ BEGIN {
 
 my $t = new saliweb::Test('saxsmerge');
 
+# Test get_start_html_parameters
+{
+    my $self = $t->make_frontend();
+    my %param = $self->get_start_html_parameters("test");
+    like($param{-script}->[-1]->{-code}, qr/UA-39277378-1/);
+}
+
 # Test get_navigation_links
 {
     my $self = $t->make_frontend();
@@ -50,4 +57,11 @@ my $t = new saliweb::Test('saxsmerge');
     my $txt = $self->get_footer();
     like($txt, qr/Spill, Y\. G\..*J\. Synchrotron Rad\./ms,
          'get_footer');
+}
+
+# Test get_download_page
+{
+    my $self = $t->make_frontend();
+    my $txt = $self->get_download_page();
+    like($txt, qr/fullpart/ms, 'get_download_page');
 }
