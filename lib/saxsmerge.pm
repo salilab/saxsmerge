@@ -91,14 +91,6 @@ sub make_dropdown {
            $text . "\n</div></div>\n";
 }
 
-sub check_email {
-    my ($email) = @_;
-    if($email !~ m/^[\w\.-]+@[\w-]+\.[\w-]+((\.[\w-]+)*)?$/ ) {
-	throw saliweb::frontend::InputValidationError("Please provide a valid return email address");
-    }
-}
-
-
 sub get_input_form {
   my $self = shift;
   my $q = $self->cgi;
@@ -139,7 +131,7 @@ sub get_submit_page {
 
     my $email = $q->param('jobemail') || undef;
 
-    if (defined $email) {check_email($email);}
+    check_optional_email($email);
 
     #create job directory time_stamp
     my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime;
