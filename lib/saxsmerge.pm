@@ -13,32 +13,16 @@ sub get_start_html_parameters {
                             -src => '//modbase.compbio.ucsf.edu/saxsmerge/html/jquery-1.8.1.min.js' };
   push @{$param{-script}}, {-language => 'JavaScript',
                             -src => '//modbase.compbio.ucsf.edu/saxsmerge/html/saxsmerge.js' };
+  push @{$param{-script}}, {-language => 'JavaScript',
+                            -code => $self->google_tracker()};
+  #push @{$param{-style}->{'-src'}}, 'html/saxsmerge.css';
   #push @{$param{-style}->{'-src'}}, 'html/saxsmerge.css';
   return %param;
 }
 
-sub get_help_page {
-  my ($self, $display_type) = @_;
-  my $file;
-  if ($display_type eq "news") {
-    $file = "news.txt";
-  } elsif ($display_type eq "about") {
-    $file = "about.txt";
-  } elsif ($display_type eq "FAQ" || $display_type eq "faq") {
-    $file = "FAQ.txt";
-  } elsif ($display_type eq "links") {
-    $file = "links.txt";
-  } elsif ($display_type eq "download") {
-    $file = "download.txt";
-  } else {
-    $file = "help.txt";
-  }
-  return $self->google_tracker() . "<div id=\"fullpart\">".$self->get_text_file($file)."</div>";
-}
-
 sub get_download_page {
   my ($self) = @_;
-  return $self->google_tracker() . "<div id=\"fullpart\">".$self->get_text_file("download.txt")."</div>";
+  return "<div id=\"fullpart\">".$self->get_text_file("download.txt")."</div>";
 }
 
 sub new {
@@ -145,7 +129,7 @@ sub get_index_page {
 
   my $input_form = get_input_form($self, $q);
 
-  return $self->google_tracker() . "<div id=\"fullpart\">$input_form</div>\n";
+  return "<div id=\"fullpart\">$input_form</div>\n";
 
 }
 
@@ -318,7 +302,6 @@ sub get_submit_page {
         $retval .= $q->p("You will be notified at $email when job results " .
                          "are available.");
     }
-    $retval .= $self->google_tracker();
     return $retval;
 }
 
@@ -326,7 +309,7 @@ sub get_results_page {
   my ($self, $job) = @_;
   my $q = $self->cgi;
 
-  my $return = $self->google_tracker();
+  my $return = "";
   my $jobname = $job->name;
   my $joburl = $job->results_url;
   my $passwd = $q->param('passwd');
@@ -916,8 +899,7 @@ sub drawCanvasMergeColor {
 }
 
 sub google_tracker() {
-return "<script type='text/javascript'>
-
+return "
   var _gaq = _gaq || [];
     _gaq.push(['_setAccount', 'UA-39277378-1']);
       _gaq.push(['_trackPageview']);
@@ -930,9 +912,7 @@ var ga = document.createElement('script'); ga.type =
     '.google-analytics.com/ga.js';
         var s = document.getElementsByTagName('script')[0];
         s.parentNode.insertBefore(ga, s);
-  })();
-
-</script>"
+  })(); ";
 }
 
 1;
