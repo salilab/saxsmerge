@@ -29,3 +29,25 @@ my $t = new saliweb::Test('saxsmerge');
     like($links->[-1], qr#<a href="http://www.pasteur.fr">Institut Pasteur</a>#,
          'Pasteur link');
 }
+
+# Test get_project_menu
+{
+    my $self = $t->make_frontend();
+    my $txt = $self->get_project_menu();
+    is($txt, "", 'get_project_menu');
+}
+
+# Test get_header_page_title
+{
+    my $self = $t->make_frontend();
+    my $txt = $self->get_header_page_title();
+    like($txt, qr/An automated statistical method/, 'get_header_page_title');
+}
+
+# Test get_footer
+{
+    my $self = $t->make_frontend();
+    my $txt = $self->get_footer();
+    like($txt, qr/Spill, Y\. G\..*J\. Synchrotron Rad\./ms,
+         'get_footer');
+}
