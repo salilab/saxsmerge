@@ -65,3 +65,13 @@ my $t = new saliweb::Test('saxsmerge');
     my $txt = $self->get_download_page();
     like($txt, qr/fullpart/ms, 'get_download_page');
 }
+
+# Test get_index_page
+{
+    my $self = $t->make_frontend();
+    my $txt = $self->get_index_page();
+    like($txt, '/Number of times each profile has been recorded.*' .
+               'Upload SAXS profile.*' .
+               'Advanced options.*' .
+               'Expert options/ms', 'get_index_page');
+}
