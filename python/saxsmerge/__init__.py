@@ -3,7 +3,7 @@ from math import sqrt
 import saliweb.backend
 
 class Job(saliweb.backend.Job):
-    runnercls = saliweb.backend.SGERunner
+    runnercls = saliweb.backend.WyntonSGERunner
 
     def get_protection_args(self):
         args = ['--blimit_fitting=240', '--elimit_fitting=240',
@@ -69,7 +69,8 @@ class Job(saliweb.backend.Job):
         script="""
 date
 hostname
-module load gnuplot
+module load Sali
+module load sali-libraries gnuplot
 
 IMPPY="/netapp/sali/saxsmerge/imp/yannick/build-fast/setup_environment.sh"
 SMERGE="/netapp/sali/saxsmerge/imp/yannick/src/applications/saxs_merge/saxs_merge.py"
@@ -84,7 +85,7 @@ gnuplot Cpgnuplot
 date
 """ % (args,post)
         r = self.runnercls(script)
-        r.set_sge_options('-l arch=linux-x64 -j y -o saxsmerge.log')
+        r.set_sge_options('-l arch=lx-amd64 -j y -o saxsmerge.log')
         return r
     
     def plot_log_scale(self,outfile,subs):
