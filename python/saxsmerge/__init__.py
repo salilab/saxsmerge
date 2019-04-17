@@ -70,12 +70,9 @@ class Job(saliweb.backend.Job):
 date
 hostname
 module load Sali
-module load sali-libraries gnuplot
+module load gnuplot imp-fast/2.1.1 python/scipy
 
-IMPPY="/netapp/sali/saxsmerge/imp/yannick/build-fast/setup_environment.sh"
-SMERGE="/netapp/sali/saxsmerge/imp/yannick/src/applications/saxs_merge/saxs_merge.py"
-
-$IMPPY $SMERGE %s
+saxs_merge.py %s
 
 cat <<EOF > Cpgnuplot
 %s
