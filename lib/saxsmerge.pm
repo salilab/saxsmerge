@@ -777,12 +777,16 @@ sub drawCanvasMerge {
              $q->input({type=>'button', id=>'minus_m_'.$num, value=>'reset',
                         onclick=>'gnuplot.unzoom();'}),
              $q->checkbox(-id=>"data_m_".$num, -label=>"data", -checked=>1,
-                            -onclick=>"gnuplot.toggle_plot('mergeplots_"."$num"."_plot_1');"),
+                          -name=>"data_m_".$num,
+                          -onclick=>"gnuplot.toggle_plot('mergeplots_"."$num"."_plot_1');"),
              $q->checkbox(-id=>"derr_m_".$num, -label=>"data error", -checked=>1,
-                            -onclick=>"gnuplot.toggle_plot('mergeplots_"."$num"."_plot_2');"),
+                          -name=>"derr_m_".$num,
+                          -onclick=>"gnuplot.toggle_plot('mergeplots_"."$num"."_plot_2');"),
              $q->checkbox(-id=>"mean_m_".$num, -label=>"mean", -checked=>1,
-                            -onclick=>"gnuplot.toggle_plot('mergeplots_"."$num"."_plot_3');"),
+                          -name=>"mean_m_".$num,
+                          -onclick=>"gnuplot.toggle_plot('mergeplots_"."$num"."_plot_3');"),
              $q->checkbox(-id=>"SD_m_".$num, -label=>"SD", -checked=>1,
+                          -name=>"SD_m_".$num,
                           -onclick=>"gnuplot.toggle_plot('mergeplots_"."$num"."_plot_4');
                                      gnuplot.toggle_plot('mergeplots_"."$num"."_plot_5');")
            ])));
@@ -836,13 +840,17 @@ sub drawCanvasInputs {
         $return .= $q->Tr($q->td(
              [$1,
              $q->checkbox(-id=>"data".$nfiles."_".$num, -label=>"", -checked=>1,
-                            -onclick=>"gnuplot.toggle_plot('inputplots_"."$num"."_plot_".(5*$nfiles-4)."');"),
+                          -name=>"data".$nfiles."_".$num,
+                          -onclick=>"gnuplot.toggle_plot('inputplots_"."$num"."_plot_".(5*$nfiles-4)."');"),
              $q->checkbox(-id=>"derr".$nfiles."_".$num, -label=>"", -checked=>1,
-                            -onclick=>"gnuplot.toggle_plot('inputplots_"."$num"."_plot_".(5*$nfiles-3)."');"),
+                          -name=>"derr".$nfiles."_".$num,
+                          -onclick=>"gnuplot.toggle_plot('inputplots_"."$num"."_plot_".(5*$nfiles-3)."');"),
              $q->checkbox(-id=>"mean".$nfiles."_".$num, -label=>"", -checked=>1,
-                            -onclick=>"gnuplot.toggle_plot('inputplots_"."$num"."_plot_".(5*$nfiles-2)."');"),
+                          -name=>"mean".$nfiles."_".$num,
+                          -onclick=>"gnuplot.toggle_plot('inputplots_"."$num"."_plot_".(5*$nfiles-2)."');"),
              $q->checkbox(-id=>"SD".$nfiles."_".$num, -label=>"", -checked=>1,
-                            -onclick=>"gnuplot.toggle_plot('inputplots_"."$num"."_plot_".(5*$nfiles-1)."');
+                          -name=>"SD".$nfiles."_".$num,
+                          -onclick=>"gnuplot.toggle_plot('inputplots_"."$num"."_plot_".(5*$nfiles-1)."');
                                        gnuplot.toggle_plot('inputplots_"."$num"."_plot_".(5*$nfiles)."');")
             ]));
         last if (/^--.+/);
