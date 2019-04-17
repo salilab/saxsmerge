@@ -45,6 +45,31 @@ class JobTests(saliweb.test.TestCase):
         self.assertEqual(contents,
                          '%s\t--bar\t--foo\n' % os.path.basename(j.directory))
 
+    def test_postprocess_files(self):
+        """Test postprocess() method with files present"""
+        j = self.make_test_job(saxsmerge.Job, 'RUNNING')
+        d = saliweb.test.RunInDir(j.directory)
+        with open('data_merged.dat', 'w') as fh:
+            fh.write('0.02   109.78   0.34   1 foo.dat\n')
+        with open('mean_merged.dat', 'w') as fh:
+            fh.write('0   277.40   4.13  264.11 --- --- 1\n')
+            fh.write('0   213.47   3.37  264.04 --- --- 1\n')
+        j.postprocess()
+        os.unlink('data_merged_3col.dat')
+        os.unlink('mean_merged_3col.dat')
+        os.unlink('saxsmerge.zip')
+
+    def test_postprocess_no_files(self):
+        """Test postprocess() method with no files present"""
+        j = self.make_test_job(saxsmerge.Job, 'RUNNING')
+        d = saliweb.test.RunInDir(j.directory)
+        with open('saxsmerge.log', 'w') as fh:
+            fh.write('garbage\n')
+        j.postprocess()
+        self.assertFalse(os.path.exists('data_merged_3col.dat'))
+        self.assertFalse(os.path.exists('mean_merged_3col.dat'))
+        os.unlink('saxsmerge.zip')
+
     def test_plot_log_scale(self):
         """Test plot_log_scale() method"""
         j = self.make_test_job(saxsmerge.Job, 'RUNNING')
