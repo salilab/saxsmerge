@@ -12,34 +12,8 @@ BEGIN {
 
 my $t = new saliweb::Test('saxsmerge');
 
-# Check results page
-
-# Check failed job
-{
-    my $frontend = $t->make_frontend();
-    my $job = new saliweb::frontend::CompletedJob($frontend,
-                        {name=>'testjob', passwd=>'foo', directory=>'/foo/bar',
-                         archive_time=>'2009-01-01 08:45:00'});
-    my $tmpdir = tempdir(CLEANUP=>1);
-    ok(chdir($tmpdir), "chdir into tempdir");
-
-    my $ret = $frontend->get_results_page($job);
-    like($ret, '/No output file was produced/', 'job no output');
-
-    chdir("/");
-}
-
-# Check OK job
-{
-    my $frontend = $t->make_frontend();
-    my $job = new saliweb::frontend::CompletedJob($frontend,
-                        {name=>'testjob', passwd=>'foo', directory=>'/foo/bar',
-                         archive_time=>'2009-01-01 08:45:00'});
-    my $tmpdir = tempdir(CLEANUP=>1);
-    ok(chdir($tmpdir), "chdir into tempdir");
-
-    ok(open(FH, ">summary.txt"));
-    print FH "Merge file
+sub get_summary_file() {
+  return "Merge file
   General
    Filename: merged.dat
    Number of points: 816
@@ -75,6 +49,36 @@ Input file 0
     Q1.Rg : 7.306783
     I(0) : 107.007365
 ";
+}
+
+# Check results page
+
+# Check failed job
+{
+    my $frontend = $t->make_frontend();
+    my $job = new saliweb::frontend::CompletedJob($frontend,
+                        {name=>'testjob', passwd=>'foo', directory=>'/foo/bar',
+                         archive_time=>'2009-01-01 08:45:00'});
+    my $tmpdir = tempdir(CLEANUP=>1);
+    ok(chdir($tmpdir), "chdir into tempdir");
+
+    my $ret = $frontend->get_results_page($job);
+    like($ret, '/No output file was produced/', 'job no output');
+
+    chdir("/");
+}
+
+# Check OK job
+{
+    my $frontend = $t->make_frontend();
+    my $job = new saliweb::frontend::CompletedJob($frontend,
+                        {name=>'testjob', passwd=>'foo', directory=>'/foo/bar',
+                         archive_time=>'2009-01-01 08:45:00'});
+    my $tmpdir = tempdir(CLEANUP=>1);
+    ok(chdir($tmpdir), "chdir into tempdir");
+
+    ok(open(FH, ">summary.txt"));
+    print FH get_summary_file();
     ok(close(FH));
 
     my $ret = $frontend->get_results_page($job);
@@ -83,6 +87,45 @@ Input file 0
                'Merge Statistics.*' .
                'mean function.*A.*G.*Rg.*sigma.*lambda.*' .
                '180713_MBP-IVB_1mg\.dat/ms', 'results page, ok');
+
+    chdir("/");
+}
+
+# Check OK job with plots
+{
+    my $frontend = $t->make_frontend();
+    my $job = new saliweb::frontend::CompletedJob($frontend,
+                        {name=>'testjob', passwd=>'foo', directory=>'/foo/bar',
+                         archive_time=>'2009-01-01 08:45:00'});
+    my $tmpdir = tempdir(CLEANUP=>1);
+    ok(chdir($tmpdir), "chdir into tempdir");
+
+    ok(open(FH, ">summary.txt"));
+    print FH get_summary_file();
+    ok(close(FH));
+
+    ok(open(FH, ">input.txt"));
+    print FH "SubtrB1-A11b.dat=10
+SubtrB2-A11b.dat=10
+--auto
+";
+    ok(close(FH));
+
+    foreach my $plot ("mergeplots.js", "mergeinplots.js", "inputplots.js") {
+      ok(open(FH, ">$plot"));
+      print FH "";
+      ok(close(FH));
+    }
+
+    my $ret = $frontend->get_results_page($job);
+    like($ret, '/Output Files.*' .
+               'Summary file.*' .
+               'Merge Statistics.*' .
+               'mean function.*A.*G.*Rg.*sigma.*lambda.*' .
+               '180713_MBP-IVB_1mg\.dat.*' .
+               '<h4>Merge Plots<\/h4>.*' .
+               '<h4>Input Colored Merge Plots<\/h4>.*' .
+               '<h4>Input Plots<\/h4>/ms', 'results page, ok with plots');
 
     chdir("/");
 }
