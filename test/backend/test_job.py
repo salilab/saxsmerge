@@ -32,6 +32,19 @@ class JobTests(saliweb.test.TestCase):
             fh.write('\n')
         cls = j.run()
 
+    def test_preprocess(self):
+        """Test preprocess() method"""
+        j = self.make_test_job(saxsmerge.Job, 'RUNNING')
+        d = saliweb.test.RunInDir(j.directory)
+        with open('input.txt', 'w') as fh:
+            fh.write('--foo  \n--bar\n')
+        j.STATS_FILE = 'test-stats-file'
+        j.preprocess()
+        with open('test-stats-file') as fh:
+            contents = fh.read()
+        self.assertEqual(contents,
+                         '%s\t--bar\t--foo\n' % os.path.basename(j.directory))
+
     def test_plot_log_scale(self):
         """Test plot_log_scale() method"""
         j = self.make_test_job(saxsmerge.Job, 'RUNNING')

@@ -5,6 +5,8 @@ import saliweb.backend
 class Job(saliweb.backend.Job):
     runnercls = saliweb.backend.WyntonSGERunner
 
+    STATS_FILE = '/modbase4/home/saxsmerge/saxsmerge_stats.log'
+
     def get_protection_args(self):
         args = ['--blimit_fitting=240', '--elimit_fitting=240',
                  '--blimit_hessian=80', '--elimit_hessian=80',
@@ -52,8 +54,7 @@ class Job(saliweb.backend.Job):
         args.sort()
         wd = os.getcwd().split('/')[-1].split('_')
         args = wd + args
-        fl=open('/modbase4/home/saxsmerge/saxsmerge_stats.log','a')
-        if fl:
+        with open(self.STATS_FILE, 'a') as fl:
             fl.write('\t'.join(args))
             fl.write('\n')
 
