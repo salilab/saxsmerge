@@ -20,9 +20,6 @@ class Job(saliweb.backend.Job):
     def get_args(self):
         return self.get_input_args() + ' ' + self.get_protection_args()
 
-    def complete(self):
-        os.chmod(".", 0775)
-    
     def standardize(self, infile, outfile):
         data=[i.split()[:3] for i in open(infile).readlines()]
         fl=open(outfile,'w')
