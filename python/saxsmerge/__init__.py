@@ -1,5 +1,5 @@
 import os
-from math import sqrt
+import math
 import saliweb.backend
 
 class Job(saliweb.backend.Job):
@@ -41,7 +41,8 @@ class Job(saliweb.backend.Job):
                 ss = [float(k[2]) for k in chunk]
                 s2mean = len(ss)/sum([1/k**2 for k in ss])
                 Imean = s2mean/len(ss)*sum([k/l**2 for (k,l) in zip(Is,ss)])
-                outline = (qval, '%-15.14G' % Imean, '%-15.14G' % (sqrt(s2mean)))
+                outline = (qval, '%-15.14G' % Imean,
+                           '%-15.14G' % math.sqrt(s2mean))
             fl.write(' '.join(outline))
             fl.write('\n')
 
