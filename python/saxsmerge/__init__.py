@@ -1,6 +1,7 @@
 import os
 import math
 import saliweb.backend
+import subprocess
 
 class Job(saliweb.backend.Job):
     runnercls = saliweb.backend.WyntonSGERunner
@@ -60,7 +61,9 @@ class Job(saliweb.backend.Job):
             self.standardize('data_merged.dat','data_merged_3col.dat')
         if os.path.isfile('mean_merged.dat'):
             self.standardize('mean_merged.dat','mean_merged_3col.dat')
-        os.system('zip -q -9 saxsmerge.zip data_* mean_* summary.txt saxsmerge.log')
+        subprocess.check_call(
+             'zip -q -9 saxsmerge.zip data_* mean_* summary.txt saxsmerge.log',
+             shell=True)
 
     def run(self):
         args = self.get_args()
