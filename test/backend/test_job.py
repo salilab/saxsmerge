@@ -43,7 +43,8 @@ class JobTests(saliweb.test.TestCase):
         with open('test-stats-file') as fh:
             contents = fh.read()
         self.assertEqual(contents,
-                         '%s\t--bar\t--foo\n' % os.path.basename(j.directory))
+                         '%s\t--bar\t--foo\n'
+                         % os.path.basename(j.directory).replace('_', '\t'))
 
     def test_postprocess_files(self):
         """Test postprocess() method with files present"""
