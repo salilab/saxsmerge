@@ -1,3 +1,4 @@
+from __future__ import division
 import os
 import math
 import saliweb.backend
@@ -294,7 +295,7 @@ date
 
     def estimate_subsampling(self,fname):
         nlines=len(open(fname).readlines())
-        return 1 + nlines/500
+        return 1 + nlines//500
 
     def gen_gnuplots(self):
         script=""
