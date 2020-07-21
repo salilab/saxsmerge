@@ -101,8 +101,8 @@ date
         script += 'p "%s" every %d u 1:2 w p lt 1 t "data", ' % (datafile,subs)
         script += '"%s" every %d u 1:2:3 w yerr lt 1 t "data", ' % (datafile,subs)
         script += '"%s" every %d u 1:2 w l lt 2 t "mean", ' % (meanfile,subs)
-        script += '"%s" every %d u 1:(\$2+\$3) w l lt 3 t "+- SD", ' % (meanfile,subs)
-        script += '"%s" every %d u 1:(\$2-\$3) w l lt 3 not\n' % (meanfile,subs)
+        script += '"%s" every %d u 1:(\\$2+\\$3) w l lt 3 t "+- SD", ' % (meanfile,subs)
+        script += '"%s" every %d u 1:(\\$2-\\$3) w l lt 3 not\n' % (meanfile,subs)
         return script
 
     def plot_lin_scale(self,outfile,subs):
@@ -117,8 +117,8 @@ date
         script += 'p "%s" every %d u 1:2 w p lt 1 t "data", ' % (datafile,subs)
         script += '"%s" every %d u 1:2:3 w yerr lt 1 t "data", ' % (datafile,subs)
         script += '"%s" every %d u 1:2 w l lt 2 t "mean", ' % (meanfile,subs)
-        script += '"%s" every %d u 1:(\$2+\$3) w l lt 3 t "+- SD", ' % (meanfile,subs)
-        script += '"%s" every %d u 1:(\$2-\$3) w l lt 3 not\n' % (meanfile,subs)
+        script += '"%s" every %d u 1:(\\$2+\\$3) w l lt 3 t "+- SD", ' % (meanfile,subs)
+        script += '"%s" every %d u 1:(\\$2-\\$3) w l lt 3 not\n' % (meanfile,subs)
         return script
 
     def plot_guinier(self,outfile,subs):
@@ -131,11 +131,11 @@ date
         script += 'set xlabel "q^2"\n'
         script += 'set ylabel "log I(q)"\n'
         script += 'set log y\n'
-        script += 'p "%s" every %d u (\$1**2):2 w p lt 1 t "data", ' % (datafile,subs)
-        script += '"%s" every %d u (\$1**2):2:3 w yerr lt 1 t "data", ' % (datafile,subs)
-        script += '"%s" every %d u (\$1**2):2 w l lt 2 t "mean", ' % (meanfile,subs)
-        script += '"%s" every %d u (\$1**2):(\$2+\$3) w l lt 3 t "+- SD", ' % (meanfile,subs)
-        script += '"%s" every %d u (\$1**2):(\$2-\$3) w l lt 3 not\n' % (meanfile,subs)
+        script += 'p "%s" every %d u (\\$1**2):2 w p lt 1 t "data", ' % (datafile,subs)
+        script += '"%s" every %d u (\\$1**2):2:3 w yerr lt 1 t "data", ' % (datafile,subs)
+        script += '"%s" every %d u (\\$1**2):2 w l lt 2 t "mean", ' % (meanfile,subs)
+        script += '"%s" every %d u (\\$1**2):(\\$2+\\$3) w l lt 3 t "+- SD", ' % (meanfile,subs)
+        script += '"%s" every %d u (\\$1**2):(\\$2-\\$3) w l lt 3 not\n' % (meanfile,subs)
         return script
 
     def plot_kratky(self,outfile,subs):
@@ -147,11 +147,11 @@ date
         script += 'set title "merged data Kratky plot"\n'
         script += 'set xlabel "q"\n'
         script += 'set ylabel "q^2 I(q)"\n'
-        script += 'p "%s" every %d u 1:(\$1**2*\$2) w p lt 1 t "data", ' % (datafile,subs)
-        script += '"%s" every %d u 1:(\$1**2*\$2):(\$1**2*\$3) w yerr lt 1 t "data", ' % (datafile,subs)
-        script += '"%s" every %d u 1:(\$1**2*\$2) w l lt 2 t "mean", ' % (meanfile,subs)
-        script += '"%s" every %d u 1:(\$1**2*(\$2+\$3)) w l lt 3 t "+- SD", ' % (meanfile,subs)
-        script += '"%s" every %d u 1:(\$1**2*(\$2-\$3)) w l lt 3 not\n' % (meanfile,subs)
+        script += 'p "%s" every %d u 1:(\\$1**2*\\$2) w p lt 1 t "data", ' % (datafile,subs)
+        script += '"%s" every %d u 1:(\\$1**2*\\$2):(\\$1**2*\\$3) w yerr lt 1 t "data", ' % (datafile,subs)
+        script += '"%s" every %d u 1:(\\$1**2*\\$2) w l lt 2 t "mean", ' % (meanfile,subs)
+        script += '"%s" every %d u 1:(\\$1**2*(\\$2+\\$3)) w l lt 3 t "+- SD", ' % (meanfile,subs)
+        script += '"%s" every %d u 1:(\\$1**2*(\\$2-\\$3)) w l lt 3 not\n' % (meanfile,subs)
         return script
 
     def plot_log_scale_colored(self,outfile,subs, full=False):
@@ -164,9 +164,9 @@ date
         script += 'set xlabel "q"\n'
         script += 'set ylabel "log I(q)"\n'
         if full:
-            script += 'p "%s" every %d u 1:2:(1+\$7) w p lc var not\n' % (datafile,subs)
+            script += 'p "%s" every %d u 1:2:(1+\\$7) w p lc var not\n' % (datafile,subs)
         else:
-            script += 'p "%s" every %d u 1:2:(1+\$4) w p lc var not\n' % (datafile,subs)
+            script += 'p "%s" every %d u 1:2:(1+\\$4) w p lc var not\n' % (datafile,subs)
         return script
 
     def plot_lin_scale_colored(self,outfile,subs, full=False):
@@ -178,9 +178,9 @@ date
         script += 'set xlabel "q"\n'
         script += 'set ylabel "I(q)"\n'
         if full:
-            script += 'p "%s" every %d u 1:2:(1+\$7) w p lc var not\n' % (datafile,subs)
+            script += 'p "%s" every %d u 1:2:(1+\\$7) w p lc var not\n' % (datafile,subs)
         else:
-            script += 'p "%s" every %d u 1:2:(1+\$4) w p lc var not\n' % (datafile,subs)
+            script += 'p "%s" every %d u 1:2:(1+\\$4) w p lc var not\n' % (datafile,subs)
         return script
     
     def plot_inputs_log_scale(self,outfile,infiles,subs):
@@ -197,15 +197,15 @@ date
             meanfile='mean_'+fn
             if i>0:
                 script += ',\\\n  '
-            script += '"%s" every %d u 1:(\$4==1?%d*\$2:1/0) w p lt %d t "%s", '\
+            script += '"%s" every %d u 1:(\\$4==1?%d*\\$2:1/0) w p lt %d t "%s", '\
                         % (datafile,subs,10**i,i+1,fn)
-            script += '"%s" every %d u 1:(\$4==1?%d*\$2:1/0):(%d*\$3) w yerr lt %d not, '\
+            script += '"%s" every %d u 1:(\\$4==1?%d*\\$2:1/0):(%d*\\$3) w yerr lt %d not, '\
                         % (datafile,subs,10**i,10**i,i+1)
-            script += '"%s" every %d u 1:(\$5==1?%d*\$2:1/0) w l lt %d not, ' \
+            script += '"%s" every %d u 1:(\\$5==1?%d*\\$2:1/0) w l lt %d not, ' \
                         % (meanfile,subs,10**i,i+2)
-            script += '"%s" every %d u 1:(\$5==1?%d*(\$2+\$3):1/0) w l lt %d not, ' \
+            script += '"%s" every %d u 1:(\\$5==1?%d*(\\$2+\\$3):1/0) w l lt %d not, ' \
                         % (meanfile,subs,10**i,i+3)
-            script += '"%s" every %d u 1:(\$5==1?%d*(\$2-\$3):1/0) w l lt %d not' \
+            script += '"%s" every %d u 1:(\\$5==1?%d*(\\$2-\\$3):1/0) w l lt %d not' \
                         % (meanfile,subs,10**i,i+3)
         script += '\n'
         return script
@@ -223,15 +223,15 @@ date
             meanfile='mean_'+fn
             if i>0:
                 script += ',\\\n  '
-            script += '"%s" every %d u 1:(\$4==1?%d+\$2:1/0) w p lt %d t "%s", '\
+            script += '"%s" every %d u 1:(\\$4==1?%d+\\$2:1/0) w p lt %d t "%s", '\
                         % (datafile,subs,i*30,i+1,fn)
-            script += '"%s" every %d u 1:(\$4==1?%d+\$2:1/0):3 w yerr lt %d not, '\
+            script += '"%s" every %d u 1:(\\$4==1?%d+\\$2:1/0):3 w yerr lt %d not, '\
                         % (datafile,subs,i*30,i+1)
-            script += '"%s" every %d u 1:(\$5==1?%d+\$2:1/0) w l lt %d not, ' \
+            script += '"%s" every %d u 1:(\\$5==1?%d+\\$2:1/0) w l lt %d not, ' \
                         % (meanfile,subs,i*30,i+2)
-            script += '"%s" every %d u 1:(\$5==1?%d+(\$2+\$3):1/0) w l lt %d not, ' \
+            script += '"%s" every %d u 1:(\\$5==1?%d+(\\$2+\\$3):1/0) w l lt %d not, ' \
                         % (meanfile,subs,i*30,i+3)
-            script += '"%s" every %d u 1:(\$5==1?%d+(\$2-\$3):1/0) w l lt %d not' \
+            script += '"%s" every %d u 1:(\\$5==1?%d+(\\$2-\\$3):1/0) w l lt %d not' \
                         % (meanfile,subs,i*30,i+3)
         script += '\n'
         return script
@@ -250,15 +250,15 @@ date
             meanfile='mean_'+fn
             if i>0:
                 script += ',\\\n  '
-            script += '"%s" every %d u (\$1**2):(\$4==1?%d*\$2:1/0) w p lt %d t "%s", '\
+            script += '"%s" every %d u (\\$1**2):(\\$4==1?%d*\\$2:1/0) w p lt %d t "%s", '\
                         % (datafile,subs,10**i,i+1,fn)
-            script += '"%s" every %d u (\$1**2):(\$4==1?%d*\$2:1/0):(%d*\$3) w yerr lt %d not, '\
+            script += '"%s" every %d u (\\$1**2):(\\$4==1?%d*\\$2:1/0):(%d*\\$3) w yerr lt %d not, '\
                         % (datafile,subs,10**i,10**i,i+1)
-            script += '"%s" every %d u (\$1**2):(\$5==1?%d*\$2:1/0) w l lt %d not, ' \
+            script += '"%s" every %d u (\\$1**2):(\\$5==1?%d*\\$2:1/0) w l lt %d not, ' \
                         % (meanfile,subs,10**i,i+2)
-            script += '"%s" every %d u (\$1**2):(\$5==1?%d*(\$2+\$3):1/0) w l lt %d not, ' \
+            script += '"%s" every %d u (\\$1**2):(\\$5==1?%d*(\\$2+\\$3):1/0) w l lt %d not, ' \
                         % (meanfile,subs,10**i,i+3)
-            script += '"%s" every %d u (\$1**2):(\$5==1?%d*(\$2-\$3):1/0) w l lt %d not' \
+            script += '"%s" every %d u (\\$1**2):(\\$5==1?%d*(\\$2-\\$3):1/0) w l lt %d not' \
                         % (meanfile,subs,10**i,i+3)
         script += '\n'
         return script
@@ -280,15 +280,15 @@ date
             meanfile='mean_'+fn
             if i>0:
                 script += ',\\\n  '
-            script += '"%s" every %d u 1:(\$4==1?%f+\$2*\$1**2:1/0) w p lt %d t "%s", '\
+            script += '"%s" every %d u 1:(\\$4==1?%f+\\$2*\\$1**2:1/0) w p lt %d t "%s", '\
                         % (datafile,subs,mult*0.1*i,i+1,fn)
-            script += '"%s" every %d u 1:(\$4==1?%f+\$2*\$1**2:1/0):(\$1**2*\$3) w yerr lt %d not, '\
+            script += '"%s" every %d u 1:(\\$4==1?%f+\\$2*\\$1**2:1/0):(\\$1**2*\\$3) w yerr lt %d not, '\
                         % (datafile,subs,mult*0.1*i,i+1)
-            script += '"%s" every %d u 1:(\$5==1?%f+\$2*\$1**2:1/0) w l lt %d not, ' \
+            script += '"%s" every %d u 1:(\\$5==1?%f+\\$2*\\$1**2:1/0) w l lt %d not, ' \
                         % (meanfile,subs,mult*0.1*i,i+2)
-            script += '"%s" every %d u 1:(\$5==1?%f+\$1**2*(\$2+\$3):1/0) w l lt %d not, ' \
+            script += '"%s" every %d u 1:(\\$5==1?%f+\\$1**2*(\\$2+\\$3):1/0) w l lt %d not, ' \
                         % (meanfile,subs,mult*0.1*i,i+3)
-            script += '"%s" every %d u 1:(\$5==1?%f+\$1**2*(\$2-\$3):1/0) w l lt %d not' \
+            script += '"%s" every %d u 1:(\\$5==1?%f+\\$1**2*(\\$2-\\$3):1/0) w l lt %d not' \
                         % (meanfile,subs,mult*0.1*i,i+3)
         script += '\n'
         return script
