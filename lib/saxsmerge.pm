@@ -10,7 +10,7 @@ sub get_start_html_parameters {
   my ($self, $style) = @_;
   my %param = $self->SUPER::get_start_html_parameters($style);
   push @{$param{-script}}, {-language => 'JavaScript',
-                            -src => '//modbase.compbio.ucsf.edu/saxsmerge/html/jquery-1.8.1.min.js' };
+                            -src => '/jquery/latest/jquery.min.js' };
   push @{$param{-script}}, {-language => 'JavaScript',
                             -src => '//modbase.compbio.ucsf.edu/saxsmerge/html/saxsmerge.js' };
   push @{$param{-script}}, {-language => 'JavaScript',
