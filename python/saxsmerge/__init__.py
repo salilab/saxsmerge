@@ -16,40 +16,43 @@ class Job(saliweb.backend.Job):
         return ' '.join(args)
 
     def get_input_args(self):
-        args = [l.rstrip() for l in open('input.txt')]
+        with open('input.txt') as fh:
+            args = [l.rstrip() for l in fh]
         return ' '.join(args)
 
     def get_args(self):
         return self.get_input_args() + ' ' + self.get_protection_args()
 
     def standardize(self, infile, outfile):
-        data=[i.split()[:3] for i in open(infile).readlines()]
-        fl=open(outfile,'w')
-        n=0
-        ntot = len(data)
-        while n < ntot:
-            i=0
-            chunk=[]
-            while n+i < ntot and data[n][0] == data[n+i][0]:
-                chunk.append(data[n+i])
-                i += 1
-            n += i
-            if len(chunk) == 1:
-                outline = tuple(chunk[0])
-            else:
-                qval = chunk[0][0]
-                Is = [float(k[1]) for k in chunk]
-                ss = [float(k[2]) for k in chunk]
-                s2mean = len(ss)/sum([1/k**2 for k in ss])
-                Imean = s2mean/len(ss)*sum([k/l**2 for (k,l) in zip(Is,ss)])
-                outline = (qval, '%-15.14G' % Imean,
-                           '%-15.14G' % math.sqrt(s2mean))
-            fl.write(' '.join(outline))
-            fl.write('\n')
+        with open(infile) as fh:
+            data=[i.split()[:3] for i in fh.readlines()]
+        with open(outfile, 'w') as fl:
+            n=0
+            ntot = len(data)
+            while n < ntot:
+                i=0
+                chunk=[]
+                while n+i < ntot and data[n][0] == data[n+i][0]:
+                    chunk.append(data[n+i])
+                    i += 1
+                n += i
+                if len(chunk) == 1:
+                    outline = tuple(chunk[0])
+                else:
+                    qval = chunk[0][0]
+                    Is = [float(k[1]) for k in chunk]
+                    ss = [float(k[2]) for k in chunk]
+                    s2mean = len(ss)/sum([1/k**2 for k in ss])
+                    Imean = s2mean/len(ss)*sum([k/l**2 for (k,l) in zip(Is,ss)])
+                    outline = (qval, '%-15.14G' % Imean,
+                               '%-15.14G' % math.sqrt(s2mean))
+                fl.write(' '.join(outline))
+                fl.write('\n')
 
     def preprocess(self):
         """store all used options for statistical purposes"""
-        args = [l.rstrip() for l in open('input.txt') if l.startswith('-')]
+        with open('input.txt') as fh:
+            args = [l.rstrip() for l in fh if l.startswith('-')]
         args.sort()
         wd = os.getcwd().split('/')[-1].split('_')
         args = wd + args
@@ -294,12 +297,14 @@ date
         return script
 
     def estimate_subsampling(self,fname):
-        nlines=len(open(fname).readlines())
+        with open(fname) as fh:
+            nlines=len(fh.readlines())
         return 1 + nlines//500
 
     def gen_gnuplots(self):
         script=""
-        infile = open('input.txt').readlines()
+        with open('input.txt') as fh:
+            infile = fh.readlines()
         hasmerge = '--stop=merging\n' in infile
         haslongtable = not ('--outlevel=sparse\n' in infile)
         hasfull = '--outlevel=full\n' in infile
