@@ -11,6 +11,7 @@ addons:
     packages:
     - scons
     - libdbi-perl
+    - libcgi-pm-perl
 cache:
   pip: true
   directories:
