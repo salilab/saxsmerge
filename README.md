@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/salilab/saxsmerge.svg?branch=master)](https://travis-ci.org/salilab/saxsmerge)
+[![Build Status](https://travis-ci.com/salilab/saxsmerge.svg?branch=master)](https://travis-ci.com/salilab/saxsmerge)
 [![codecov](https://codecov.io/gh/salilab/saxsmerge/branch/master/graph/badge.svg)](https://codecov.io/gh/salilab/saxsmerge)
 
 This is the source code for [SAXS Merge](https://salilab.org/saxsmerge/), a web
