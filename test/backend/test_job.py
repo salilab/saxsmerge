@@ -14,62 +14,62 @@ class JobTests(saliweb.test.TestCase):
     def test_get_args(self):
         """Test get_args() method"""
         j = self.make_test_job(saxsmerge.Job, 'RUNNING')
-        d = saliweb.test.RunInDir(j.directory)
-        with open('input.txt', 'w') as fh:
-            fh.write('--foo  \n--bar\n')
-        self.assertEqual(j.get_args(),
-                         '--foo --bar --blimit_fitting=240 '
-                         '--elimit_fitting=240 --blimit_hessian=80 '
-                         '--elimit_hessian=80 -v -v -v')
+        with saliweb.test.working_directory(j.directory):
+            with open('input.txt', 'w') as fh:
+                fh.write('--foo  \n--bar\n')
+            self.assertEqual(j.get_args(),
+                             '--foo --bar --blimit_fitting=240 '
+                             '--elimit_fitting=240 --blimit_hessian=80 '
+                             '--elimit_hessian=80 -v -v -v')
 
     def test_run_ok(self):
         """Test successful run method"""
         j = self.make_test_job(saxsmerge.Job, 'RUNNING')
-        d = saliweb.test.RunInDir(j.directory)
-        with open('input.txt', 'w') as fh:
-            fh.write('datafile=10\n--foo  \n--bar\n')
-        with open('datafile', 'w') as fh:
-            fh.write('\n')
-        cls = j.run()
+        with saliweb.test.working_directory(j.directory):
+            with open('input.txt', 'w') as fh:
+                fh.write('datafile=10\n--foo  \n--bar\n')
+            with open('datafile', 'w') as fh:
+                fh.write('\n')
+            cls = j.run()
 
     def test_preprocess(self):
         """Test preprocess() method"""
         j = self.make_test_job(saxsmerge.Job, 'RUNNING')
-        d = saliweb.test.RunInDir(j.directory)
-        with open('input.txt', 'w') as fh:
-            fh.write('--foo  \n--bar\n')
-        j.STATS_FILE = 'test-stats-file'
-        j.preprocess()
-        with open('test-stats-file') as fh:
-            contents = fh.read()
-        self.assertEqual(contents,
-                         '%s\t--bar\t--foo\n'
-                         % os.path.basename(j.directory).replace('_', '\t'))
+        with saliweb.test.working_directory(j.directory):
+            with open('input.txt', 'w') as fh:
+                fh.write('--foo  \n--bar\n')
+            j.STATS_FILE = 'test-stats-file'
+            j.preprocess()
+            with open('test-stats-file') as fh:
+                contents = fh.read()
+            self.assertEqual(contents,
+                             '%s\t--bar\t--foo\n'
+                             % os.path.basename(j.directory).replace('_', '\t'))
 
     def test_postprocess_files(self):
         """Test postprocess() method with files present"""
         j = self.make_test_job(saxsmerge.Job, 'RUNNING')
-        d = saliweb.test.RunInDir(j.directory)
-        with open('data_merged.dat', 'w') as fh:
-            fh.write('0.02   109.78   0.34   1 foo.dat\n')
-        with open('mean_merged.dat', 'w') as fh:
-            fh.write('0   277.40   4.13  264.11 --- --- 1\n')
-            fh.write('0   213.47   3.37  264.04 --- --- 1\n')
-        j.postprocess()
-        os.unlink('data_merged_3col.dat')
-        os.unlink('mean_merged_3col.dat')
-        os.unlink('saxsmerge.zip')
+        with saliweb.test.working_directory(j.directory):
+            with open('data_merged.dat', 'w') as fh:
+                fh.write('0.02   109.78   0.34   1 foo.dat\n')
+            with open('mean_merged.dat', 'w') as fh:
+                fh.write('0   277.40   4.13  264.11 --- --- 1\n')
+                fh.write('0   213.47   3.37  264.04 --- --- 1\n')
+            j.postprocess()
+            os.unlink('data_merged_3col.dat')
+            os.unlink('mean_merged_3col.dat')
+            os.unlink('saxsmerge.zip')
 
     def test_postprocess_no_files(self):
         """Test postprocess() method with no files present"""
         j = self.make_test_job(saxsmerge.Job, 'RUNNING')
-        d = saliweb.test.RunInDir(j.directory)
-        with open('saxsmerge.log', 'w') as fh:
-            fh.write('garbage\n')
-        j.postprocess()
-        self.assertFalse(os.path.exists('data_merged_3col.dat'))
-        self.assertFalse(os.path.exists('mean_merged_3col.dat'))
-        os.unlink('saxsmerge.zip')
+        with saliweb.test.working_directory(j.directory):
+            with open('saxsmerge.log', 'w') as fh:
+                fh.write('garbage\n')
+            j.postprocess()
+            self.assertFalse(os.path.exists('data_merged_3col.dat'))
+            self.assertFalse(os.path.exists('mean_merged_3col.dat'))
+            os.unlink('saxsmerge.zip')
 
     def test_plot_log_scale(self):
         """Test plot_log_scale() method"""
@@ -159,15 +159,15 @@ class JobTests(saliweb.test.TestCase):
     def test_plot_inputs_kratky(self):
         """Test plot_inputs_kratky() method"""
         j = self.make_test_job(saxsmerge.Job, 'RUNNING')
-        d = saliweb.test.RunInDir(j.directory)
-        p = j.plot_inputs_kratky('kratky.plot', ['foo', 'bar'], 5)
-        self.assertTrue("set terminal canvas solid" in p)
-        self.assertFalse("set log y" in p)
-        with open('is_nm', 'w') as fh:
-            pass
-        p = j.plot_inputs_kratky('kratky.plot', ['foo', 'bar'], 5)
-        self.assertTrue("set terminal canvas solid" in p)
-        self.assertFalse("set log y" in p)
+        with saliweb.test.working_directory(j.directory):
+            p = j.plot_inputs_kratky('kratky.plot', ['foo', 'bar'], 5)
+            self.assertTrue("set terminal canvas solid" in p)
+            self.assertFalse("set log y" in p)
+            with open('is_nm', 'w') as fh:
+                pass
+            p = j.plot_inputs_kratky('kratky.plot', ['foo', 'bar'], 5)
+            self.assertTrue("set terminal canvas solid" in p)
+            self.assertFalse("set log y" in p)
 
     def test_estimate_subsampling(self):
         """Test estimate_subsampling() method"""
@@ -187,36 +187,36 @@ class JobTests(saliweb.test.TestCase):
     def test_gen_gnuplots_no_opts(self):
         """Test gen_gnuplots() method with no options"""
         j = self.make_test_job(saxsmerge.Job, 'RUNNING')
-        d = saliweb.test.RunInDir(j.directory)
-        self.make_input_txt('')
-        script = j.gen_gnuplots()
-        self.assertEqual(script, '')
+        with saliweb.test.working_directory(j.directory):
+            self.make_input_txt('')
+            script = j.gen_gnuplots()
+            self.assertEqual(script, '')
 
     def test_gen_gnuplots_hasmerge(self):
         """Test gen_gnuplots() method with merging"""
         j = self.make_test_job(saxsmerge.Job, 'RUNNING')
-        d = saliweb.test.RunInDir(j.directory)
-        self.make_input_txt('--stop=merging\n--outlevel=sparse\n')
-        script = j.gen_gnuplots()
-        self.assertTrue('fontscale 1 name "mergeplots_4"' in script)
+        with saliweb.test.working_directory(j.directory):
+            self.make_input_txt('--stop=merging\n--outlevel=sparse\n')
+            script = j.gen_gnuplots()
+            self.assertTrue('fontscale 1 name "mergeplots_4"' in script)
 
     def test_gen_gnuplots_hasmerge_longtable(self):
         """Test gen_gnuplots() method with merging and long table"""
         j = self.make_test_job(saxsmerge.Job, 'RUNNING')
-        d = saliweb.test.RunInDir(j.directory)
-        self.make_input_txt('--stop=merging\n')
-        script = j.gen_gnuplots()
-        self.assertTrue('fontscale 1 name "mergeplots_4"' in script)
-        self.assertTrue('fontscale 1 name "mergeinplots_2"' in script)
+        with saliweb.test.working_directory(j.directory):
+            self.make_input_txt('--stop=merging\n')
+            script = j.gen_gnuplots()
+            self.assertTrue('fontscale 1 name "mergeplots_4"' in script)
+            self.assertTrue('fontscale 1 name "mergeinplots_2"' in script)
 
     def test_gen_gnuplots_hasinputs(self):
         """Test gen_gnuplots() method with input plots"""
         j = self.make_test_job(saxsmerge.Job, 'RUNNING')
-        d = saliweb.test.RunInDir(j.directory)
-        self.make_input_txt('test2file=200\n--allfiles\n')
-        script = j.gen_gnuplots()
-        self.assertTrue('p "data_testfile" every 1' in script)
-        self.assertTrue('"data_test2file" every 1' in script)
+        with saliweb.test.working_directory(j.directory):
+            self.make_input_txt('test2file=200\n--allfiles\n')
+            script = j.gen_gnuplots()
+            self.assertTrue('p "data_testfile" every 1' in script)
+            self.assertTrue('"data_test2file" every 1' in script)
 
 if __name__ == '__main__':
     unittest.main()
