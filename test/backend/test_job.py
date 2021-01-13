@@ -4,12 +4,13 @@ import saliweb.test
 import saliweb.backend
 import os
 
+
 class JobTests(saliweb.test.TestCase):
     """Check custom Job class"""
 
     def test_init(self):
         """Test creation of Job object"""
-        j = self.make_test_job(saxsmerge.Job, 'RUNNING')
+        _ = self.make_test_job(saxsmerge.Job, 'RUNNING')
 
     def test_get_args(self):
         """Test get_args() method"""
@@ -30,7 +31,7 @@ class JobTests(saliweb.test.TestCase):
                 fh.write('datafile=10\n--foo  \n--bar\n')
             with open('datafile', 'w') as fh:
                 fh.write('\n')
-            cls = j.run()
+            _ = j.run()
 
     def test_preprocess(self):
         """Test preprocess() method"""
@@ -42,9 +43,10 @@ class JobTests(saliweb.test.TestCase):
             j.preprocess()
             with open('test-stats-file') as fh:
                 contents = fh.read()
-            self.assertEqual(contents,
-                             '%s\t--bar\t--foo\n'
-                             % os.path.basename(j.directory).replace('_', '\t'))
+            self.assertEqual(
+                contents,
+                '%s\t--bar\t--foo\n'
+                % os.path.basename(j.directory).replace('_', '\t'))
 
     def test_postprocess_files(self):
         """Test postprocess() method with files present"""
@@ -121,7 +123,7 @@ class JobTests(saliweb.test.TestCase):
         p = j.plot_kratky('kratky.plot', 5)
         self.assertTrue("set terminal canvas solid" in p)
         self.assertFalse("set log y" in p)
-        self.assertTrue('p "data_merged.dat" every 5 u 1:(\\$1**2*\\$2) w' in p)
+        self.assertIn('p "data_merged.dat" every 5 u 1:(\\$1**2*\\$2) w', p)
 
     def test_plot_inputs_log_scale(self):
         """Test plot_inputs_log_scale() method"""
@@ -163,7 +165,7 @@ class JobTests(saliweb.test.TestCase):
             p = j.plot_inputs_kratky('kratky.plot', ['foo', 'bar'], 5)
             self.assertTrue("set terminal canvas solid" in p)
             self.assertFalse("set log y" in p)
-            with open('is_nm', 'w') as fh:
+            with open('is_nm', 'w'):
                 pass
             p = j.plot_inputs_kratky('kratky.plot', ['foo', 'bar'], 5)
             self.assertTrue("set terminal canvas solid" in p)
@@ -217,6 +219,7 @@ class JobTests(saliweb.test.TestCase):
             script = j.gen_gnuplots()
             self.assertTrue('p "data_testfile" every 1' in script)
             self.assertTrue('"data_test2file" every 1' in script)
+
 
 if __name__ == '__main__':
     unittest.main()
