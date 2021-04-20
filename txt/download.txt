@@ -1,7 +1,7 @@
 <h1>Download</h1>
 <p>SAXS Merge can be downloaded as a standalone application as part of
-<a href=https://integrativemodeling.org/download.html
-target="_blank">the IMP software</a>.</p>
+<a href="https://integrativemodeling.org/download.html"
+target="_blank" rel="noopener noreferrer">the IMP software</a>.</p>
 
 <p>The source code for this web service is
 <a href="https://github.com/salilab/saxsmerge">also available at GitHub</a>.
