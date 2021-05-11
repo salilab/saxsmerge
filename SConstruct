@@ -8,7 +8,7 @@ env.InstallAdminTools()
 env.InstallCGIScripts()
 
 Export('env')
-SConscript('python/saxsmerge/SConscript')
+SConscript('backend/saxsmerge/SConscript')
 SConscript('lib/SConscript')
 SConscript('txt/SConscript')
 SConscript('test/SConscript')
