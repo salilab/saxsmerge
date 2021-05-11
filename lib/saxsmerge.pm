@@ -70,7 +70,7 @@ sub get_header_page_title {
 
 sub get_footer {
   return "<hr size='2' width=\"80%\"><div id='address'>
-<p> <p>Contact: <script>escramble(\"yannick.spill\",\"pasteur.fr\")</script><br></div>
+<p> <p>Contact: <script>escramble(\"saxsmerge\",\"salilab.org\")</script><br></div>
 <p>Note: this server is in beta, results might be bad!
 <p>If you use this server, please cite<br>
 Spill, Y. G., Kim, S. J., Schneidman-Duhovny, D., Russel, D.,
