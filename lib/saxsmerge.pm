@@ -727,10 +727,10 @@ sub get_expert_options {
 }
 
 sub setupCanvas {
-return "<script src=\"/foxs/gnuplot_js/canvastext.js\"></script>
-<script src=\"/foxs/gnuplot_js/gnuplot_common.js\"></script>
-<script src=\"/foxs/gnuplot_js/gnuplot_dashedlines.js\"></script>
-<script src=\"/foxs/gnuplot_js/gnuplot_mouse.js\"></script>
+return "<script type=\"text/javascript\" src=\"/saliweb/gnuplot5/canvastext.js\"></script>
+<script type=\"text/javascript\" src=\"/saliweb/gnuplot5/gnuplot_common.js\"></script>
+<script type=\"text/javascript\" src=\"/saliweb/gnuplot5/gnuplot_dashedlines.js\"></script>
+<script type=\"text/javascript\" src=\"/saliweb/gnuplot5/gnuplot_mouse.js\"></script>
 <script type=\"text/javascript\">
 var canvas, ctx;
 gnuplot.grid_lines = true;
