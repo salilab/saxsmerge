@@ -78,9 +78,9 @@ class Job(saliweb.backend.Job):
 date
 hostname
 module load Sali
-module load gnuplot imp-fast/2.1.1 python/scipy
+module load gnuplot imp-fast python2/scipy
 
-saxs_merge.py %s
+saxs_merge %s
 
 cat <<EOF > Cpgnuplot
 %s
