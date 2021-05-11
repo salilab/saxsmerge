@@ -1,0 +1,158 @@
+{% extends "layout.html" %}
+
+{% block title %}SAXS Merge{% endblock %}
+
+{% block body %}
+<form method="post" action="{{ url_for("job") }}"
+ enctype="multipart/form-data" name="saxsmerge_form">
+
+<h4>Required inputs</h4>
+
+<table>
+	
+<tr><td>Email (optional)</td> <td><input type="text" name="jobemail" value="{{ g.user.email }}" size="25" /></td></tr>
+
+<tr><td>Number of times each profile has been recorded</td> <td><input type="text" name="recordings" value="10" size="1" maxlength="3" /></td></tr>
+
+<tbody id="profiles">
+	
+  <tr><td>Upload SAXS profile </td> <td><input type="file" name="uploaded_file"  /></td> <td><a href="{{ url_for("static", filename="example/example_input.zip") }}">Example input</a></td></tr>
+</tbody>
+
+<tr><td><input type="button"  value="Add more profiles" onclick="add_profile()" /></td></tr>
+
+<tr><td>Automatically determine profile order</td> <td><label><input type="checkbox" name="gen_auto" value="on" checked="checked" /></label></td></tr>
+
+<tr><td>Output data for parsed input files as well</td> <td><label><input type="checkbox" name="gen_input" value="on" /></label></td></tr>
+
+<tr><td>Momentum transfer values are per</td> <td><label><input type="radio" name="gen_unit" value="Angstrom" checked="checked" />Angstrom</label><br /></td> <td><label><input type="radio" name="gen_unit" value="Nanometer" />Nanometer</label><br /></td></tr>
+
+<tr><td><input type="submit" value="Submit" /></td> <td><input type="reset" value="Reset to defaults" /></td></tr>
+
+</table>
+
+<div class="dropdown_container">
+<a onclick="$('#advanced').slideToggle('fast')" href="#"><h4>Advanced options</h4></a>
+<div class="dropdown" id="advanced" style="display:none">
+<table>
+	
+<tbody>
+	
+<tr><th>General</th></tr>
+
+<tr><td>First line of output files is a header</td> <td><label><input type="checkbox" name="gen_header" value="on" /></label></td></tr>
+
+<tr><td>Remove points with too large error bars</td> <td><label><input type="checkbox" name="gen_noisy" value="on" checked="checked" /></label></td></tr>
+
+<tr><td>Remove high noise data if it is redundant</td> <td><label><input type="checkbox" name="gen_redundant" value="on" checked="checked" /></label></td></tr>
+
+<tr><td>Output level</td> <td><select name="gen_output"  onchange="gen_output_context(this);">
+<option value="sparse">sparse</option>
+<option selected="selected" value="normal">normal</option>
+<option value="full">full</option>
+</select></td> <td><p id="gen_output_text" /></td></tr>
+
+<tr><td>Stop after step</td> <td><select name="gen_stop" >
+<option value="cleanup">cleanup</option>
+<option value="fitting">fitting</option>
+<option value="rescaling">rescaling</option>
+<option value="classification">classification</option>
+<option selected="selected" value="merging">merging</option>
+</select></td></tr>
+</tbody>
+
+<tbody>
+<tr><th>Cleanup (Step 1)</th></tr>
+
+<tr><td>Type I error (before Bonferroni correction)</td> <td><input type="text" name="clean_alpha" value="0.05" size="5" /></td></tr>
+
+</tbody>
+
+<tbody>
+<tr><th>Fitting (Step 2)</th></tr>
+
+<tr><td>Parameter set</td> <td><select name="fit_param"  onchange="fit_param_context(this);">
+<option value="Flat">Flat</option>
+<option value="Simple">Simple</option>
+<option value="Generalized">Generalized</option>
+<option selected="selected" value="Full">Full</option>
+</select></td> <td><p id="fit_param_text" /></td></tr>
+
+<tr><td>Model comparison</td> <td><label><input type="checkbox" name="fit_comp" value="on" checked="checked" /></label></td></tr>
+
+<tr><td>Always compute error bars</td> <td><label><input type="checkbox" name="fit_bars" value="on" /></label></td></tr>
+</tbody>
+
+<tbody>
+<tr><th>Rescaling (Step 3)</th></tr>
+
+<tr><td>Model</td> <td><select name="res_model" >
+<option selected="selected" value="normal">normal</option>
+<option value="normal-offset">normal-offset</option>
+<option value="lognormal">lognormal</option>
+</select></td></tr>
+</tbody>
+
+<tbody>
+<tr><th>Classification (Step 4)</th></tr>
+<tr><td>Type I error</td> <td><input type="text" name="class_alpha" value="0.05" size="5" /></td></tr>
+</tbody>
+
+<tbody>
+<tr><th>Merging (Step 5)</th></tr>
+
+<tr><td>Parameter set</td> <td><select name="merge_param"  onchange="merge_param_context(this);">
+<option value="Flat">Flat</option>
+<option value="Simple">Simple</option>
+<option value="Generalized">Generalized</option>
+<option selected="selected" value="Full">Full</option>
+</select></td> <td><p id="merge_param_text" /></td></tr>
+
+<tr><td>Model comparison</td> <td><label><input type="checkbox" name="merge_comp" value="on" checked="checked" /></label></td></tr>
+
+<tr><td>Always compute error bars</td> <td><label><input type="checkbox" name="merge_bars" value="on" /></label></td></tr>
+
+<tr><td>Don't extrapolate at all, even at low angle</td> <td><label><input type="checkbox" name="merge_noextrapol" value="on" /></label></td></tr>
+</tbody>
+</table>
+</div></div>
+
+<div class="dropdown_container">
+<a onclick="$('#expert').slideToggle('fast')" href="#"><h4>Expert options</h4></a>
+<div class="dropdown" id="expert" style="display:none">
+<table>
+<tbody>
+<tr><th>General</th></tr>
+<tr><td>Take q values from first input file</td> <td><label><input type="checkbox" name="gen_npoints_input" value="on" onchange="document.getElementById('gen_npoints_val').disabled=this.checked;" /></label></td></tr>
+<tr><td>Number of evenly spaced q values to return for the mean</td> <td><input type="text" name="gen_npoints_val" value="200" size="5" id="gen_npoints_val" /></td></tr>
+<tr><td>Cleanup step comes after rescaling step</td> <td><label><input type="checkbox" name="gen_postpone" value="on" /></label></td></tr>
+</tbody>
+
+<tbody>
+<tr><th>Cleanup (Step 1)</th></tr>
+<tr><td>Start discarding curve after qcut= (per Angstrom)</td> <td><input type="text" name="clean_cut" value="0.1" size="5" id="clean_cut" /></td></tr>
+</tbody>
+
+<tbody>
+<tr><th>Fitting (Step 2)</th></tr>
+<tr><td>Average over parameters instead of taking most probable set</td> <td><label><input type="checkbox" name="fit_avg" value="on" /></label></td></tr>
+</tbody>
+
+<tbody>
+<tr><th>Rescaling (Step 3)</th></tr>
+<tr><td>Which input curve to rescale the others to</td> <td><select name="res_ref" >
+<option value="first">first</option>
+<option selected="selected" value="last">last</option>
+</select></td></tr>
+<tr><td>Number of points to use to compute gamma</td> <td><input type="text" name="res_npoints" value="200" size="5" /></td></tr>
+</tbody>
+
+<tbody>
+<tr><th>Merging (Step 5)</th></tr>
+<tr><td>Average over parameters instead of taking most probable set</td> <td><label><input type="checkbox" name="merge_avg" value="on" /></label></td></tr>
+<tr><td>Extrapolate NUM percent outside of the curve's bounds</td> <td><input type="text" name="merge_extrapol" value="0" size="5" /></td></tr>
+</tbody>
+</table>
+</div></div>
+</form>
+{% endblock %}

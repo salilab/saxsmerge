@@ -9,7 +9,7 @@ env.InstallCGIScripts()
 
 Export('env')
 SConscript('backend/saxsmerge/SConscript')
-SConscript('lib/SConscript')
+SConscript('frontend/saxsmerge/SConscript')
 SConscript('txt/SConscript')
 SConscript('test/SConscript')
 SConscript('html/SConscript')

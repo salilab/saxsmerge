@@ -1,0 +1,44 @@
+{% extends "saliweb/layout.html" %}
+
+{% block js %}
+<script type="text/javascript" src="/jquery/latest/jquery.min.js"></script>
+<script type="text/javascript" src="{{ url_for("static", filename='saxsmerge.js') }}"></script>
+{% endblock %}
+
+{% block header_page_title %}
+<table> <tbody> <tr> <td halign='left'>
+  <table><tr><td>
+  <a href="{{ url_for("index") }}">
+  <img src="{{ url_for("static", filename="img/saxsmerge_logo.png") }}" align='left' height ='80' alt='SAXS Merge'></a></td></tr>
+         <tr><td><h1>An automated statistical method to merge SAXS profiles from different concentrations and exposure times</h1> </td></tr></table>
+      </td> </tr>
+</tbody>
+</table>
+{% endblock %}
+
+{% block lab_navigation %}
+{{ get_lab_navigation_links(
+       [('http://www.pasteur.fr', "Institut Pasteur")])
+}}
+{% endblock %}
+
+{% block navigation %}
+{{ get_navigation_links(
+       [(url_for("index"), "SAXS Merge Home"),
+        (url_for("job"), "Queue"),
+        (url_for("help"), "Help"),
+        (url_for("faq"), "FAQ"),
+        (url_for("download"), "Download"),
+        (url_for("results", name="53_31_12_11_4_121", passwd="MnVGDrwrjR"), "Example output")])
+}}
+{% endblock %}
+
+{% block footer %}
+<hr size='2' width="80%"><div id='address'>
+<p> <p>Contact: <script>escramble("saxsmerge","salilab.org")</script><br></div>
+<p>Note: this server is in beta, results might be bad!
+<p>If you use this server, please cite<br>
+Spill, Y. G., Kim, S. J., Schneidman-Duhovny, D., Russel, D.,
+Webb, B., Sali, A. &amp; Nilges, M. (2014). <i>J. Synchrotron Rad.</i>
+<b>21</b>, 203&ndash;208.
+{% endblock %}
