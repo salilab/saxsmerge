@@ -46,7 +46,7 @@ sub get_navigation_links {
         $q->a({-href=>$self->help_url}, "Help"),
         $q->a({-href=>$self->faq_url}, "FAQ"),
         $q->a({-href=>$self->download_url}, "Download"),
-        $q->a({-href=>"https://modbase.compbio.ucsf.edu/saxsmerge/results.cgi/11_56_1_17_11_113?passwd=kqzEy4go4s"}, "Example output")
+        $q->a({-href=>"https://modbase.compbio.ucsf.edu/saxsmerge/results.cgi/53_31_12_11_4_121?passwd=MnVGDrwrjR"}, "Example output")
         ];
 }
 
