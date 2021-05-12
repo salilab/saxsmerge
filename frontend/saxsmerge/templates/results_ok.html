@@ -1,8 +1,80 @@
 {% extends "layout.html" %}
 
+{%- macro format_merge_val(val) %}
+{%- if val is defined %}
+  {%- if val.has_error() %}
+    {{ "%.3f" % val.value }} +-&nbsp;{{ "%.3f" % val.err }}
+  {%- else %}
+    {{ "%.3f" % val.value }}
+  {%- endif %}
+{%- endif %}
+{%- endmacro %}
+
+
 {% block title %}SAXS Merge Results{% endblock %}
 
 {% block body %}
+<h4>Output Files</h4>
+
+<table>
+<tr>
+  {%- if results.file_exists('data_merged.dat') %}
+  <td><a href="{{ job.get_results_file_url('data_merged.dat') }}">Merged data</a></td>
+  <td><a href="{{ job.get_results_file_url('data_merged_3col.dat') }}">Merged data (standardized)</a></td>
+  {%- endif %}
+
+  {%- if results.file_exists('mean_merged.dat') %}
+  <td><a href="{{ job.get_results_file_url('mean_merged.dat') }}">Merged mean</a></td>
+  <td><a href="{{ job.get_results_file_url('mean_merged_3col.dat') }}">Merged mean (standardized)</a></td>
+  {%- endif %}
+
+  <td><a href="{{ job.get_results_file_url('summary.txt') }}">Summary file</a></td>
+  <td><a href="{{ job.get_results_file_url('saxsmerge.zip') }}">All files</a></td>
+  </tr>
+</table>
+
+
+<div class="dropdown_container">
+<a onclick="$('#mergestatsdd').slideToggle('fast')" href="#"><h4>Merge Statistics</h4></a>
+<div class="dropdown" id="mergestatsdd" style="display:none">
+<table border='1'>
+
+{%- set particles = ["A", "G", "Rg", "d", "s", "sigma", "tau", "lambda"] %}
+<tr>
+{%- for header in ["order", "filename", "num points (%)",
+                   "mean function"] + particles %}
+  <th>{{ header }}</th>
+{%- endfor %}
+</tr>
+
+<tr>
+{%- for firstline in ["merge", "*_merged.dat",
+                      merge_stats.nmergepoints ~ " (100%)",
+		      merge_stats.mergemean['mean']] %}
+<td><b>{{ firstline }}</b></td>
+{%- endfor %}
+
+{%- for p in particles %}
+<td><b>{{ format_merge_val(merge_stats.mergemean[p]) }}</b></td>
+{%- endfor %}
+</tr>
+
+{%- for inp in merge_stats.inputmean %}
+<tr>
+  <td>{{ loop.index }}</td>
+  <td>{{ inp.fname }}</td>
+  <td>{{ inp.points }} ({{ "%.1f" % inp.pointpct }}%)</td>
+  <td>{{ inp.mean }}</td>
+  {%- for p in particles %}
+  <td>{{ format_merge_val(inp[p]) }}</td>
+  {%- endfor %}
+</tr>
+{%- endfor %}
+
+</table>
+</div></div>
+
+
 <script type="text/javascript" src="/saliweb/gnuplot5/canvastext.js"></script>
 <script type="text/javascript" src="/saliweb/gnuplot5/gnuplot_common.js"></script>
 <script type="text/javascript" src="/saliweb/gnuplot5/gnuplot_dashedlines.js"></script>
