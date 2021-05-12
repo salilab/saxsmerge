@@ -61,7 +61,7 @@ def add_advanced_options(datafile, job):
     add_bool_option('gen_header', "--header")
     add_bool_option('gen_noisy', "--remove_noisy")
     add_bool_option('gen_redundant', "--remove_redundant")
-    add_bool_option('gen_input', "--remove_input")
+    add_bool_option('gen_input', "--allfiles")
 
     mult = 1
     if request.form.get('gen_unit') == 'Nanometer':
@@ -69,7 +69,7 @@ def add_advanced_options(datafile, job):
         with open(job.get_path('is_nm'), 'w') as fh:
             fh.write('nm')
 
-    add_choice_option('gen_output',  "--out-level",
+    add_choice_option('gen_output',  "--outlevel",
                       ['sparse', 'normal', 'full'])
     add_choice_option('gen_stop',  "--stop",
                       ['cleanup', 'fitting', 'rescaling', 'classification',
