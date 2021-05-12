@@ -49,6 +49,14 @@ def add_advanced_options(datafile, job):
         elif error_msg:
             raise InputValidationError(error_msg)
 
+    def add_choice_option(reqname, outflag, choices):
+        choice = request.form.get(reqname)
+        if choice in choices:
+            print("%s=%s" % (outflag, choice), file=datafile)
+        else:
+            raise InputValidationError(
+                "%s must be one of %s" % (reqname, choices))
+
     add_bool_option('gen_auto', '--auto')
     add_bool_option('gen_header', "--header")
     add_bool_option('gen_noisy', "--remove_noisy")
@@ -61,26 +69,32 @@ def add_advanced_options(datafile, job):
         with open(job.get_path('is_nm'), 'w') as fh:
             fh.write('nm')
 
-    print("--outlevel=%s" % request.form["gen_output"], file=datafile)
-    print("--stop=%s" % request.form["gen_stop"], file=datafile)
+    add_choice_option('gen_output',  "--out-level",
+                      ['sparse', 'normal', 'full'])
+    add_choice_option('gen_stop',  "--stop",
+                      ['cleanup', 'fitting', 'rescaling', 'classification',
+                       'merging'])
 
     # cleanup
     add_float_option('clean_alpha', '--aalpha')
 
     # fitting
-    print("--bmean=%s" % request.form["fit_param"], file=datafile)
+    add_choice_option('fit_param',  "--bmean",
+                      ['Flat', 'Simple', 'Generalized', 'Full'])
     add_not_bool_option('fit_comp', '--bnocomp')
     add_bool_option('fit_bars', '--berror')
 
     # rescaling
-    print("--cmodel=%s" % request.form["res_model"], file=datafile)
+    add_choice_option('res_model',  "--cmodel",
+                      ['normal', 'normal-offset', 'lognormal'])
 
     # classification
     add_float_option('class_alpha', '--dalpha',
                      "Advanced: classification: alpha is invalid number")
 
     # merging
-    print("--emean=%s" % request.form["merge_param"], file=datafile)
+    add_choice_option('merge_param',  "--emean",
+                      ['Flat', 'Simple', 'Generalized', 'Full'])
     add_not_bool_option('merge_comp', '--enocomp')
     add_bool_option('merge_bars', '--eerror')
     add_bool_option("merge_noextrapol", "--enoextrapolate")
@@ -108,7 +122,7 @@ def add_advanced_options(datafile, job):
     add_bool_option("fit_avg", "--baverage")
 
     # rescaling
-    print("--creference=%s" % request.form["res_ref"], file=datafile)
+    add_choice_option('res_ref',  "--creference", ['first', 'last'])
     ngamma = request.form.get("res_npoints", type=int)
     if ngamma is None or ngamma <= 0:
         raise InputValidationError(
