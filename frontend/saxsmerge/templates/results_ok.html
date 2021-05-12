@@ -10,6 +10,28 @@
 {%- endif %}
 {%- endmacro %}
 
+{%- macro drawCanvasMerge(num) %}
+<canvas id='mergeplots_{{ num }}' width=400 height=350 tabindex='0' oncontextmenu='return false;'>
+  <div class='box'><h2>Your browser does not support the HTML 5 canvas element</h2></div>
+</canvas>
+
+<table>
+  <tr>
+    <td><input id="minus_m_{{ num }}" onclick="gnuplot.unzoom();" type="button" value="reset" /></td>
+
+    <td><label><input type="checkbox" name="data_m_{{ num }}" value="on" checked="checked" id="data_m_{{ num }}" onclick="gnuplot.toggle_plot('mergeplots_{{ num }}_plot_1');" />data</label></td>
+
+    <td><label><input type="checkbox" name="derr_m_{{ num }}" value="on" checked="checked" id="derr_m_{{ num }}" onclick="gnuplot.toggle_plot('mergeplots_{{ num }}_plot_2');" />data error</label></td>
+
+    <td><label><input type="checkbox" name="mean_m_{{ num }}" value="on" checked="checked" id="mean_m_{{ num }}" onclick="gnuplot.toggle_plot('mergeplots_{{ num }}_plot_3');" />mean</label></td>
+
+    <td><label><input type="checkbox" name="SD_m_{{ num }}" value="on" checked="checked" id="SD_m_{{ num }}" onclick="gnuplot.toggle_plot('mergeplots_{{ num }}_plot_4'); gnuplot.toggle_plot('mergeplots_{{ num }}_plot_5');" />SD</label></td>
+  </tr>
+</table>
+<script>window.addEventListener('load', mergeplots_{{ num }}, false);</script>
+{%- endmacro %}
+
+
 
 {% block title %}SAXS Merge Results{% endblock %}
 
@@ -79,5 +101,41 @@
 <script type="text/javascript" src="/saliweb/gnuplot5/gnuplot_common.js"></script>
 <script type="text/javascript" src="/saliweb/gnuplot5/gnuplot_dashedlines.js"></script>
 <script type="text/javascript" src="/saliweb/gnuplot5/gnuplot_mouse.js"></script>
+<script type="text/javascript">
+var canvas, ctx;
+gnuplot.grid_lines = true;
+gnuplot.zoomed = false;
+gnuplot.active_plot_name = "gnuplot_canvas";
+gnuplot.active_plot = gnuplot.dummyplot;
+gnuplot.dummyplot = function() {};
+function gnuplot_canvas( plot ) { gnuplot.active_plot(); };
+</script>
+
+{%- if results.file_exists('mergeplots.js') %}
+<div class="dropdown_container">
+<a onclick="$('#mergeplotsdd').slideToggle('fast')" href="#">
+<h4>Merge Plots</h4></a>
+<div class="dropdown" id="mergeplotsdd">
+
+<script src="{{ job.get_results_file_url('mergeplots.js') }}"></script>
+<table>
+  <tr><th>Log scale</th> <th>Linear scale</th></tr>
+  <tr>
+    <td>{{ drawCanvasMerge(1) }}</td>
+    <td>{{ drawCanvasMerge(2) }}</td>
+  </tr>
+
+  <tr><th>Guinier plot</th> <th>Kratky plot</th></tr>
+  <tr>
+    <td>{{ drawCanvasMerge(3) }}</td>
+    <td>{{ drawCanvasMerge(4) }}</td>
+  </tr>
+</table>
+
+</div></div>
+{%- endif %}
+
+{%- if results.file_exists('mergeinplots.js') %}
+{%- endif %}
 
 {% endblock %}
