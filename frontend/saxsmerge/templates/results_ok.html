@@ -32,6 +32,49 @@
 {%- endmacro %}
 
 
+{%- macro drawCanvasMergeColor(num) %}
+<canvas id='mergeinplots_{{ num }}' width=400 height=350 tabindex='0' oncontextmenu='return false;'>
+  <div class='box'><h2>Your browser does not support the HTML 5 canvas element</h2></div>
+</canvas>
+
+<table>
+  <tr>
+    <td><input id="minus_mi_{{ num }}" onclick="gnuplot.unzoom();" type="button" value="reset" /></td>
+  </tr>
+</table>
+<script>window.addEventListener('load', mergeinplots_{{ num }}, false);</script>
+{%- endmacro %}
+
+
+{%- macro drawCanvasInputs(num, files) %}
+<canvas id='inputplots_{{ num }}' width=400 height=350 tabindex='0' oncontextmenu='return false;'>
+  <div class='box'><h2>Your browser does not support the HTML 5 canvas element</h2></div>
+</canvas>
+
+<table>
+  <tr>
+    <td><input id="minus_i_{{ num }}" onclick="gnuplot.unzoom();" type="button" value="reset" /></td>
+  </tr>
+</table>
+
+<table>
+  <tr><td>input file</td> <td>data</td> <td>error</td> <td>mean</td> <td>SD</td></tr>
+
+  {%- for f in files %}
+  <tr>
+    <td>{{ f.fname }}</td>
+    <td><label><input type="checkbox" name="data{{ loop.index }}_{{ num }}" value="on" checked="checked" id="data{{ loop.index }}_{{ num }}" onclick="gnuplot.toggle_plot('inputplots_{{ num }}_plot_{{ 5 * loop.index - 4 }}');" /></label></td>
+    <td><label><input type="checkbox" name="derr{{ loop.index }}_{{ num }}" value="on" checked="checked" id="derr{{ loop.index }}_{{ num }}" onclick="gnuplot.toggle_plot('inputplots_{{ num }}_plot_{{ 5 * loop.index - 3 }}');" /></label></td>
+
+    <td><label><input type="checkbox" name="mean{{ loop.index }}_{{ num }}" value="on" checked="checked" id="mean{{ loop.index }}_{{ num }}" onclick="gnuplot.toggle_plot('inputplots_{{ num }}_plot_{{ 5 * loop.index - 2 }}');" /></label></td>
+
+    <td><label><input type="checkbox" name="SD{{ loop.index }}_{{ num }}" value="on" checked="checked" id="SD{{ loop.index }}_{{ num }}" onclick="gnuplot.toggle_plot('inputplots_{{ num }}_plot_{{ 5 * loop.index - 1 }}'); gnuplot.toggle_plot('inputplots_{{ num }}_plot_{{ 5 * loop.index }}');" /></label></td>
+  </tr>
+  {%- endfor %}
+</table>
+<script>window.addEventListener('load', inputplots_{{ num }}, false);</script>
+{%- endmacro %}
+
 
 {% block title %}SAXS Merge Results{% endblock %}
 
@@ -136,6 +179,45 @@ function gnuplot_canvas( plot ) { gnuplot.active_plot(); };
 {%- endif %}
 
 {%- if results.file_exists('mergeinplots.js') %}
+<div class="dropdown_container">
+<a onclick="$('#mergeinplotsdd').slideToggle('fast')" href="#">
+<h4>Input Colored Merge Plots</h4></a>
+<div class="dropdown" id="mergeinplotsdd">
+
+<script src="{{ job.get_results_file_url('mergeinplots.js') }}"></script>
+<table>
+  <tr><th>Log scale</th> <th>Linear scale</th></tr>
+  <tr>
+    <td>{{ drawCanvasMergeColor(1) }}</td>
+    <td>{{ drawCanvasMergeColor(2) }}</td>
+  </tr>
+</table>
+
+</div></div>
+{%- endif %}
+
+{%- if results.file_exists('inputplots.js') %}
+<div class="dropdown_container">
+<a onclick="$('#inputplotsdd').slideToggle('fast')" href="#">
+<h4>Input Plots</h4></a>
+<div class="dropdown" id="inputplotsdd" style="display:none">
+
+<script src="{{ job.get_results_file_url('inputplots.js') }}"></script>
+<table>
+  <tr><th>Log scale</th> <th>Linear scale</th></tr>
+  <tr>
+    <td>{{ drawCanvasInputs(1, merge_stats.inputmean) }}</td>
+    <td>{{ drawCanvasInputs(2, merge_stats.inputmean) }}</td>
+  </tr>
+
+  <tr><th>Guinier plot</th> <th>Kratky plot</th></tr>
+  <tr>
+    <td>{{ drawCanvasInputs(3, merge_stats.inputmean) }}</td>
+    <td>{{ drawCanvasInputs(4, merge_stats.inputmean) }}</td>
+  </tr>
+</table>
+
+</div></div>
 {%- endif %}
 
 {% endblock %}
