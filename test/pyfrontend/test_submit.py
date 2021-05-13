@@ -1,7 +1,6 @@
 import unittest
 import saliweb.test
 import os
-import re
 
 # Import the saxsmerge frontend with mocks
 saxsmerge = saliweb.test.import_mocked_frontend("saxsmerge", __file__,

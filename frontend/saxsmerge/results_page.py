@@ -63,7 +63,6 @@ class MergeStats:
             p['pointpct'] = float(fpoints) / self.nmergepoints * 100.
             self.inputmean.append(p)
 
-
     def _get_merge_param(self, fh):
         param = {}
 
