@@ -5,7 +5,6 @@ env = saliweb.build.Environment(vars, ['conf/live.conf'], service_module='saxsme
 Help(vars.GenerateHelpText(env))
 
 env.InstallAdminTools()
-env.InstallCGIScripts()
 
 Export('env')
 SConscript('backend/saxsmerge/SConscript')
