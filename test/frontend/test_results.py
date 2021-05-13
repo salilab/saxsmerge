@@ -8,11 +8,13 @@ saxsmerge = saliweb.test.import_mocked_frontend("saxsmerge", __file__,
 
 
 def get_summary_file():
-    return """Merge file
+    return """garbage line
+Merge file
   General
    Filename: merged.dat
    Number of points: 816
    Data range: 0.01713 0.33480
+   garbage line
    447 points from profile 0 (180713_MBP-IVB_1mg.dat)
    13 points from profile 1 (180713_MBP-IVB_2.5mg.dat)
    356 points from profile 2 (180713_MBP-IVB_5mg.dat)
@@ -36,7 +38,7 @@ Input file 0
    G : 13.989880 +- 1.351631
    Rg : 45.703773 +- 0.861011
    A : 1.857049 +- 1.503380
-   sigma2 : 18.321082 +- 0.344843
+   sigma2 : 18.321082 +- nan
    tau : 1.066421 +- 3.944389
    lambda : 0.047426 +- 128.533419
    Calculated Values
