@@ -18,16 +18,18 @@ class Tests(saliweb.test.TestCase):
             rv = c.get('/job/testjob/saxsmerge.log?passwd=%s' % j.passwd)
             self.assertEqual(rv.status_code, 200)
 
-    def test_ok_job(self):
-        """Test display of OK job"""
+    def test_ok_job_minimal(self):
+        """Test display of OK job, minimal outputs"""
         with saliweb.test.make_frontend_job('testjob2') as j:
             j.make_file("summary.txt")
             c = saxsmerge.app.test_client()
             for endpoint in ('job', 'results.cgi'):
                 rv = c.get('/%s/testjob2?passwd=%s' % (endpoint, j.passwd))
                 r = re.compile(
-                        b'Job.*testjob.*has completed.*output\\.pdb.*'
-                        b'Download output PDB', re.MULTILINE | re.DOTALL)
+                    b'Output Files.*Summary file.*All files.*Merge Statistics'
+                    b'.*order.*filename.*num points.*mean function.*A'
+                    b'.*G.*Rg.*d.*s.*sigma.*tau.*lambda',
+                    re.MULTILINE | re.DOTALL)
                 self.assertRegex(rv.data, r)
 
     def test_failed_job(self):
@@ -38,7 +40,7 @@ class Tests(saliweb.test.TestCase):
             r = re.compile(
                 b'No output file was produced.*'
                 b'Please inspect the log file.*'
-                b'saxsmerge\.log.*View SAXS Merge log file',
+                rb'saxsmerge\.log.*View SAXS Merge log file',
                 re.MULTILINE | re.DOTALL)
             self.assertRegex(rv.data, r)
 
