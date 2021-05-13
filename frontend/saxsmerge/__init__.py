@@ -45,4 +45,6 @@ def results(name):
 @app.route('/job/<name>/<path:fp>')
 def results_file(name, fp):
     job = get_completed_job(name, request.args.get('passwd'))
-    return send_from_directory(job.directory, fp)
+    # Profiles (.dat) should display in the browser by default
+    mimetype = 'text/plain' if fp.endswith('.dat') else None
+    return send_from_directory(job.directory, fp, mimetype=mimetype)
