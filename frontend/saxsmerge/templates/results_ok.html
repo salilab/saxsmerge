@@ -3,7 +3,7 @@
 {%- macro format_merge_val(val) %}
 {%- if val is defined %}
   {%- if val.has_error() %}
-    {{ "%.3f" % val.value }} +-&nbsp;{{ "%.3f" % val.err }}
+    {{ "%.3f" % val.value }} &plusmn;&nbsp;{{ "%.3f" % val.err }}
   {%- else %}
     {{ "%.3f" % val.value }}
   {%- endif %}
