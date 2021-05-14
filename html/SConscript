@@ -1,5 +1,6 @@
 Import('env')
 
 env.InstallHTML(['saxsmerge.js'])
+env.InstallHTML(['css/saxsmerge.css'], 'css')
 env.InstallHTML(['img/saxsmerge_logo.png'],'img')
 env.InstallHTML(['example/example_input.zip'], 'example')
