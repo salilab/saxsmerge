@@ -7,7 +7,7 @@ import os
 
 
 def handle_new_job():
-    email = request.form.get('email')
+    email = request.form.get('jobemail')
 
     # Validate input
     saliweb.frontend.check_email(email, required=False)
