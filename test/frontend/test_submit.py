@@ -43,10 +43,10 @@ class Tests(saliweb.test.TestCase):
 
             # Successful submission (no email)
             data['uploaded_file'] = open(profile, 'rb')
-            rv = c.post('/job', data=data)
-            self.assertEqual(rv.status_code, 200)
+            rv = c.post('/job', data=data, follow_redirects=True)
+            self.assertEqual(rv.status_code, 503)
             r = re.compile(b'Your job .* has been submitted.*'
-                           b'Results will be found',
+                           b'results will be found',
                            re.MULTILINE | re.DOTALL)
             self.assertRegex(rv.data, r)
 
@@ -63,7 +63,7 @@ class Tests(saliweb.test.TestCase):
                     pass
                 profile = open(profile, 'rb')
             data['uploaded_file'] = profile
-            return c.post('/job', data=data)
+            return c.post('/job', data=data, follow_redirects=True)
 
     def test_submit_bool_option(self):
         """Test submit page with some normally-off bools turned on"""
@@ -72,7 +72,7 @@ class Tests(saliweb.test.TestCase):
         data['merge_bars'] = 'on'
         data['fit_comp'] = 'on'
         rv = self._check_submit(data)
-        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.status_code, 503)
 
     def test_submit_bad_float(self):
         """Test submit page with bad float option"""
@@ -96,14 +96,14 @@ class Tests(saliweb.test.TestCase):
         data = get_default_submit_parameters()
         data['gen_unit'] = 'Nanometer'
         rv = self._check_submit(data)
-        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.status_code, 503)
 
     def test_submit_q_first_input(self):
         """Test submit page with q values taken from first input"""
         data = get_default_submit_parameters()
         data['gen_npoints_input'] = 'on'
         rv = self._check_submit(data)
-        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.status_code, 503)
 
     def test_submit_bad_q(self):
         """Test submit page with bad q values"""

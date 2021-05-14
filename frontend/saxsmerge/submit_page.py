@@ -26,10 +26,7 @@ def handle_new_job():
         add_advanced_options(datafile, job)
 
     job.submit(email)
-
-    # Pop up an exit page
-    return saliweb.frontend.render_submit_template('submit.html', email=email,
-                                                   job=job)
+    return saliweb.frontend.redirect_to_results_page(job)
 
 
 def add_advanced_options(datafile, job):

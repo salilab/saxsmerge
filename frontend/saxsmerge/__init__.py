@@ -38,7 +38,8 @@ def job():
 @app.route('/results.cgi/<name>')  # compatibility with old perl-CGI scripts
 @app.route('/job/<name>')
 def results(name):
-    job = get_completed_job(name, request.args.get('passwd'))
+    job = get_completed_job(name, request.args.get('passwd'),
+                            still_running_template='running.html')
     return results_page.show_results_page(job)
 
 
