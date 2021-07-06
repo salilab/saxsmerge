@@ -1,5 +1,6 @@
 import unittest
 import saliweb.test
+import tempfile
 import os
 import re
 from werkzeug.datastructures import FileStorage
@@ -25,7 +26,7 @@ class Tests(saliweb.test.TestCase):
 
     def test_submit_page(self):
         """Test submit page"""
-        with saliweb.test.temporary_directory() as t:
+        with tempfile.TemporaryDirectory() as t:
             incoming = os.path.join(t, 'incoming')
             os.mkdir(incoming)
             saxsmerge.app.config['DIRECTORIES_INCOMING'] = incoming
@@ -51,7 +52,7 @@ class Tests(saliweb.test.TestCase):
             self.assertRegex(rv.data, r)
 
     def _check_submit(self, data, profile='default'):
-        with saliweb.test.temporary_directory() as t:
+        with tempfile.TemporaryDirectory() as t:
             incoming = os.path.join(t, 'incoming')
             os.mkdir(incoming)
             saxsmerge.app.config['DIRECTORIES_INCOMING'] = incoming
