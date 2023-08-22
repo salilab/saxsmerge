@@ -8,8 +8,6 @@ import subprocess
 class Job(saliweb.backend.Job):
     runnercls = saliweb.backend.WyntonSGERunner
 
-    STATS_FILE = '/modbase4/home/saxsmerge/saxsmerge_stats.log'
-
     def get_protection_args(self):
         args = ['--blimit_fitting=240', '--elimit_fitting=240',
                 '--blimit_hessian=80', '--elimit_hessian=80',
@@ -50,17 +48,6 @@ class Job(saliweb.backend.Job):
                                '%-15.14G' % math.sqrt(s2mean))
                 fl.write(' '.join(outline))
                 fl.write('\n')
-
-    def preprocess(self):
-        """store all used options for statistical purposes"""
-        with open('input.txt') as fh:
-            args = [line.rstrip() for line in fh if line.startswith('-')]
-        args.sort()
-        wd = os.getcwd().split('/')[-1].split('_')
-        args = wd + args
-        with open(self.STATS_FILE, 'a') as fl:
-            fl.write('\t'.join(args))
-            fl.write('\n')
 
     def postprocess(self):
         if os.path.isfile('data_merged.dat'):
