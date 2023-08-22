@@ -37,6 +37,8 @@ class JobTests(saliweb.test.TestCase):
         """Test postprocess() method with files present"""
         j = self.make_test_job(saxsmerge.Job, 'RUNNING')
         with saliweb.test.working_directory(j.directory):
+            with open('saxsmerge.log', 'w') as fh:
+                fh.write("normal output\n")
             with open('data_merged.dat', 'w') as fh:
                 fh.write('0.02   109.78   0.34   1 foo.dat\n')
             with open('mean_merged.dat', 'w') as fh:
@@ -57,6 +59,14 @@ class JobTests(saliweb.test.TestCase):
             self.assertFalse(os.path.exists('data_merged_3col.dat'))
             self.assertFalse(os.path.exists('mean_merged_3col.dat'))
             os.unlink('saxsmerge.zip')
+
+    def test_postprocess_bad_log(self):
+        """Test postprocess() method with bad log file"""
+        j = self.make_test_job(saxsmerge.Job, 'RUNNING')
+        with saliweb.test.working_directory(j.directory):
+            with open('saxsmerge.log', 'w') as fh:
+                fh.write('ImportError\n')
+            self.assertRaises(saxsmerge.LogError, j.postprocess)
 
     def test_plot_log_scale(self):
         """Test plot_log_scale() method"""

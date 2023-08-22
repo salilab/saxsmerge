@@ -5,6 +5,11 @@ import saliweb.backend
 import subprocess
 
 
+# Exceptions
+class LogError(Exception):
+    pass
+
+
 class Job(saliweb.backend.Job):
     runnercls = saliweb.backend.WyntonSGERunner
 
@@ -49,7 +54,14 @@ class Job(saliweb.backend.Job):
                 fl.write(' '.join(outline))
                 fl.write('\n')
 
+    def check_log_errors(self):
+        """Check log file for common errors"""
+        with open('saxsmerge.log') as fh:
+            if 'ImportError' in fh.read():
+                raise LogError("Error reported in saxsmerge.log")
+
     def postprocess(self):
+        self.check_log_errors()
         if os.path.isfile('data_merged.dat'):
             self.standardize('data_merged.dat', 'data_merged_3col.dat')
         if os.path.isfile('mean_merged.dat'):
