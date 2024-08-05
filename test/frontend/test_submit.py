@@ -166,6 +166,14 @@ class Tests(saliweb.test.TestCase):
         self.assertEqual(rv.status_code, 400)
         self.assertIn(b'Please provide plain text files', rv.data)
 
+    def test_submit_gif_profile(self):
+        """Test submit page with gif instead of profile"""
+        data = get_default_submit_parameters()
+        fh = FileStorage(stream=None, filename='foo.gif')
+        rv = self._check_submit(data, profile=fh)
+        self.assertEqual(rv.status_code, 400)
+        self.assertIn(b'Please provide plain text files', rv.data)
+
 
 if __name__ == '__main__':
     unittest.main()

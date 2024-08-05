@@ -148,7 +148,7 @@ def handle_profiles(fhs, records, datafile, job):
             raise InputValidationError(
                 "Please limit the file name length to a maximum of "
                 "40 characters")
-        if re.search('(zip|tar|gz|bz2|rar)$', fname):
+        if re.search('(zip|tar|gz|bz2|rar|gif)$', fname):
             raise InputValidationError(
                 "Please provide plain text files with three columns (q,I,err)")
 
