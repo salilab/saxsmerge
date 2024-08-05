@@ -3,12 +3,18 @@ import saliweb.test
 import tempfile
 import os
 import re
+import io
 from werkzeug.datastructures import FileStorage
 
 
 # Import the saxsmerge frontend with mocks
 saxsmerge = saliweb.test.import_mocked_frontend("saxsmerge", __file__,
                                                 '../../frontend')
+
+
+def _mock_profile_fh():
+    """Get a handle to a minimal profile file"""
+    return io.BytesIO(b"1.0 2.0 3.0")
 
 
 def get_default_submit_parameters():
@@ -39,8 +45,8 @@ class Tests(saliweb.test.TestCase):
 
             data = get_default_submit_parameters()
             profile = os.path.join(t, 'test.profile')
-            with open(profile, 'w'):
-                pass
+            with open(profile, 'w') as fh:
+                print("1.0 2.0 3.0", file=fh)
 
             # Successful submission (no email)
             data['uploaded_file'] = open(profile, 'rb')
@@ -60,8 +66,8 @@ class Tests(saliweb.test.TestCase):
 
             if profile == 'default':
                 profile = os.path.join(t, 'test.profile')
-                with open(profile, 'w'):
-                    pass
+                with open(profile, 'w') as fh:
+                    print("1.0 2.0 3.0", file=fh)
                 profile = open(profile, 'rb')
             data['uploaded_file'] = profile
             return c.post('/job', data=data, follow_redirects=True)
@@ -152,7 +158,7 @@ class Tests(saliweb.test.TestCase):
     def test_submit_long_profile(self):
         """Test submit page with too-long profile name"""
         data = get_default_submit_parameters()
-        fh = FileStorage(stream=None, filename='x' * 80)
+        fh = FileStorage(stream=_mock_profile_fh(), filename='x' * 80)
         rv = self._check_submit(data, profile=fh)
         self.assertEqual(rv.status_code, 400)
         self.assertIn(b'limit the file name length to a maximum '
@@ -161,7 +167,7 @@ class Tests(saliweb.test.TestCase):
     def test_submit_zip_profile(self):
         """Test submit page with zipped profile"""
         data = get_default_submit_parameters()
-        fh = FileStorage(stream=None, filename='foo.gz')
+        fh = FileStorage(stream=_mock_profile_fh(), filename='foo.gz')
         rv = self._check_submit(data, profile=fh)
         self.assertEqual(rv.status_code, 400)
         self.assertIn(b'Please provide plain text files', rv.data)
@@ -169,10 +175,18 @@ class Tests(saliweb.test.TestCase):
     def test_submit_gif_profile(self):
         """Test submit page with gif instead of profile"""
         data = get_default_submit_parameters()
-        fh = FileStorage(stream=None, filename='foo.gif')
+        fh = FileStorage(stream=_mock_profile_fh(), filename='foo.gif')
         rv = self._check_submit(data, profile=fh)
         self.assertEqual(rv.status_code, 400)
         self.assertIn(b'Please provide plain text files', rv.data)
+
+    def test_submit_empty_profile(self):
+        """Test submit page with empty profile file"""
+        data = get_default_submit_parameters()
+        fh = FileStorage(stream=None, filename='foo.txt')
+        rv = self._check_submit(data, profile=fh)
+        self.assertEqual(rv.status_code, 400)
+        self.assertIn(b'You have uploaded an empty profile: foo.txt', rv.data)
 
 
 if __name__ == '__main__':

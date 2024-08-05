@@ -152,5 +152,10 @@ def handle_profiles(fhs, records, datafile, job):
             raise InputValidationError(
                 "Please provide plain text files with three columns (q,I,err)")
 
-        fh.save(job.get_path(fname))
+        full_fname = job.get_path(fname)
+        fh.save(full_fname)
+        if os.stat(full_fname).st_size == 0:
+            raise InputValidationError(
+                "You have uploaded an empty profile: %s" % fname)
+
         print("%s=%d" % (fname, records), file=datafile)
