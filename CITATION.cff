@@ -1,0 +1,45 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Spill"
+  given-names: "Yannick G"
+- family-names: "Kim"
+  given-names: "Seung Joong"
+- family-names: "Schneidman-Duhovny"
+  given-names: "Dina"
+- family-names: "Russel"
+  given-names: "Daniel"
+- family-names: "Webb"
+  given-names: "Ben
+- family-names: "Sali"
+  given-names: "Andrej"
+- family-names: "Nilges"
+  given-names: "Michael"
+title: "SAXS Merge"
+url: "https://github.com/salilab/saxsmerge"
+preferred-citation:
+  type: article
+  authors:
+  - family-names: "Spill"
+    given-names: "Yannick G"
+  - family-names: "Kim"
+    given-names: "Seung Joong"
+  - family-names: "Schneidman-Duhovny"
+    given-names: "Dina"
+  - family-names: "Russel"
+    given-names: "Daniel"
+  - family-names: "Webb"
+    given-names: "Ben
+  - family-names: "Sali"
+    given-names: "Andrej"
+  - family-names: "Nilges"
+    given-names: "Michael"
+  doi: "10.1107/S1600577513030117"
+  journal: "J Synchrotron Radiat"
+  month: 1
+  start: 203
+  end: 208
+  title: "SAXS Merge: an automated statistical method to merge SAXS profiles using Gaussian processes"
+  issue: 21
+  volume: 1
+  year: 2014
